@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadership Growth Readiness — People First Consulting</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+:root {
+  --navy:#1a2340;--navy-mid:#2c3a5c;--navy-light:#3d4f75;
+  --gold:#c9922a;--gold-light:#f5e6c8;--gold-mid:#e8b96a;--gold-pale:#fdf8f0;
+  --cream:#faf8f4;--cream-dark:#f0ece3;--cream-mid:#e8e3d8;
+  --text:#1a1a1a;--text-mid:#4a4a5a;--text-muted:#8a8a9a;
+  --border:#e0dbd0;--border-dark:#c8c2b5;
+  --white:#ffffff;
+  --green:#2a7a4f;--green-light:#e8f4ed;
+  --red:#8b3a2a;--red-light:#f5ebe8;
+  --level1:#c0392b;--level2:#e67e22;--level3:#c9a800;--level4:#27ae60;--level5:#1a6b3c;
+  --sidebar-w:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+.app-header{background:var(--navy);color:white;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);flex-shrink:0;position:sticky;top:0;z-index:100;}
+.app-header h1{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;letter-spacing:.01em;}
+.app-header .sub{font-size:11px;color:var(--gold-mid);text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
+.badge-1p{background:var(--gold);color:var(--navy);font-weight:700;font-size:13px;padding:4px 10px;border-radius:4px;letter-spacing:.05em;}
+
+/* ── TOP NAV TABS ── */
+.nav-tabs{background:var(--white);border-bottom:2px solid var(--border);display:flex;overflow-x:auto;flex-shrink:0;}
+.nav-tab{padding:14px 24px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s;}
+.nav-tab:hover{color:var(--navy);}
+.nav-tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+
+/* ── LAYOUT ── */
+.page-body{flex:1;display:flex;overflow:hidden;}
+.main-scroll{flex:1;overflow-y:auto;padding:32px;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:20px;}
+.card-title{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:var(--navy);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.card-sm{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;}
+
+/* ── FORMS ── */
+label{font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
+input[type="text"],input[type="email"],input[type="tel"],select,textarea{width:100%;padding:9px 13px;border:1px solid var(--border-dark);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--cream);color:var(--text);transition:border-color .2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);background:white;}
+textarea{min-height:80px;resize:vertical;line-height:1.5;}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a5a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+.form-group{margin-bottom:14px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ── BUTTONS ── */
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;cursor:pointer;transition:all .18s;border:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--navy);color:white;}.btn-primary:hover{background:var(--navy-mid);}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:600;}.btn-gold:hover{background:var(--gold-mid);}
+.btn-outline{background:transparent;color:var(--navy);border:1px solid var(--border-dark);}.btn-outline:hover{background:var(--cream-dark);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #ddc8c4;font-size:12px;padding:5px 12px;}.btn-danger:hover{background:var(--red-light);}
+.btn-success{background:var(--green);color:white;}.btn-success:hover{background:#1e6040;}
+
+/* ── CLIENT LIST ── */
+.client-list{display:flex;flex-direction:column;gap:10px;}
+.client-row{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s;}
+.client-row:hover{border-color:var(--navy-light);box-shadow:0 2px 8px rgba(26,35,64,.06);}
+.client-row.active{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-light);}
+.client-name-big{font-size:16px;font-weight:500;color:var(--navy);}
+.client-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;}
+.avatar-lg{width:52px;height:52px;font-size:18px;}
+
+/* ── PERSON CARD ── */
+.person-card{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s;}
+.person-card:hover{border-color:var(--navy);background:white;}
+.person-card.active{border-color:var(--gold);background:white;box-shadow:0 0 0 3px var(--gold-light);}
+.pname{font-weight:500;font-size:14px;}
+.prole{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-complete{background:var(--green-light);color:var(--green);}
+.badge-partial{background:var(--gold-light);color:#8a6010;}
+.badge-empty{background:var(--cream-dark);color:var(--text-muted);}
+.badge-industry{background:#e8eaf6;color:#3949ab;}
+
+/* ── QUESTION BLOCK ── */
+.q-block{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:18px;border-left:4px solid var(--navy-mid);}
+.q-num{background:var(--navy);color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.q-text{font-size:14px;font-weight:500;color:var(--navy);line-height:1.5;}
+.q-hint{font-size:11px;color:var(--text-muted);font-style:italic;margin-top:4px;}
+.dim-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.dp{padding:2px 9px;border-radius:10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.dp-Identity{background:#ede9fb;color:#5b2d9e;}
+.dp-Judgement{background:#ddeeff;color:#1a4a7a;}
+.dp-Relationships{background:#ffe5e0;color:#7a2e1a;}
+.dp-Systems{background:#ddf5e8;color:#1a5a35;}
+.dp-Growth{background:#fff3d6;color:#7a5a0a;}
+
+/* ── REACTIONS ── */
+.reaction-group{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.rlabel{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;align-self:center;margin-right:4px;}
+.rchip{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid var(--border-dark);font-size:12px;cursor:pointer;transition:all .15s;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--text-mid);user-select:none;}
+.rchip:hover{border-color:var(--navy);background:white;}
+.rchip.sel-receptive{background:#e8f4ed;border-color:var(--green);color:var(--green);}
+.rchip.sel-offended{background:#f5ebe8;border-color:#a0402e;color:#a0402e;}
+.rchip.sel-annoyed{background:#fff3d6;border-color:#9a6800;color:#9a6800;}
+.rchip.sel-engaged{background:#e8eaf6;border-color:#3949ab;color:#3949ab;}
+
+/* ── SCORE BUTTONS ── */
+.score-row{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.score-dim-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.sdim-label{font-size:11px;font-weight:600;width:90px;flex-shrink:0;}
+.sb{padding:4px 9px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border-dark);background:var(--cream);transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.sb:hover{border-color:var(--navy);}
+.sb.s1.a{background:var(--level1);color:white;border-color:var(--level1);}
+.sb.s2.a{background:var(--level2);color:white;border-color:var(--level2);}
+.sb.s3.a{background:var(--level3);color:white;border-color:var(--level3);}
+.sb.s4.a{background:var(--level4);color:white;border-color:var(--level4);}
+.sb.s5.a{background:var(--level5);color:white;border-color:var(--level5);}
+
+/* ── BARS ── */
+.bar-track{flex:1;height:20px;background:var(--cream-dark);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:white;transition:width .5s ease;}
+
+/* ── LEVEL BADGES ── */
+.lvl{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.lvl-1{background:#fde8e6;color:var(--level1);}
+.lvl-2{background:#fef0e0;color:var(--level2);}
+.lvl-3{background:#fefae0;color:var(--level3);}
+.lvl-4{background:#e6f5ec;color:var(--level4);}
+.lvl-5{background:#d6ede2;color:var(--level5);}
+
+/* ── SUCCESS METER ── */
+.success-meter{background:var(--gold-pale);border:1px solid var(--gold-mid);border-radius:10px;padding:20px 24px;margin-top:16px;}
+.success-pct{font-family:'DM Serif Display',serif;font-size:48px;font-weight:400;line-height:1;}
+.success-bar-track{height:10px;background:var(--cream-dark);border-radius:5px;margin:10px 0;overflow:hidden;}
+.success-bar-fill{height:100%;border-radius:5px;transition:width .6s ease;}
+
+/* ── REPORT ── */
+.report-title-big{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--navy);margin-bottom:4px;}
+.company-score-num{font-family:'DM Serif Display',serif;font-size:52px;font-weight:400;color:var(--navy);line-height:1;}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.metric-tile{background:white;border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.metric-tile .mscore{font-size:26px;font-weight:600;margin-bottom:4px;}
+.metric-tile .mdim{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;}
+
+.insight-box{background:var(--gold-pale);border:1px solid var(--gold-mid);border-radius:8px;padding:14px 18px;font-size:13px;color:#5a3e0a;margin-top:16px;line-height:1.6;}
+.insight-box strong{font-weight:600;}
+
+.dim-row-report{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.dlabel{font-size:13px;font-weight:500;color:var(--navy);width:110px;flex-shrink:0;}
+
+.person-report-card{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:14px;}
+.prh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-top:0;border-bottom:1px solid var(--border);}
+
+.save-ind{font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;margin-left:auto;padding-right:4px;align-self:center;}
+.save-ind.show{opacity:1;}
+
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);}
+.empty-state h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:20px;color:var(--navy);margin-bottom:8px;}
+.empty-state p{font-size:14px;}
+
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px;}
+
+.interview-layout{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start;}
+
+@media(max-width:800px){
+  .interview-layout{grid-template-columns:1fr;}
+  .grid-2,.grid-3,.grid-5{grid-template-columns:1fr;}
+  .main-scroll{padding:20px 14px;}
+}
+@media print{
+  .no-print{display:none!important;}
+  .card{break-inside:avoid;}
+  .app-header,.nav-tabs{display:none!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header no-print">
+  <div>
+    <h1>Leadership Growth Readiness Diagnostic</h1>
+    <div class="sub">People First Consulting · Leadership OS™ · Identity · Judgement · Relationships · Systems · Growth</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <span class="save-ind" id="save-ind">Saved ✓</span>
+    <span class="badge-1p">1P</span>
+  </div>
+</div>
+
+<div class="nav-tabs no-print" id="nav-tabs"></div>
+
+<div class="page-body">
+  <div class="main-scroll" id="main-content"></div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   CONSTANTS
+───────────────────────────────────────── */
+const QUESTIONS=[
+  {id:'q1',text:'What habits would you want your team to copy that you do well?',dims:['Identity','Relationships'],hint:'Reveals self-awareness and leadership modeling behavior'},
+  {id:'q2',text:'What behaviors do you believe make you qualified for the role you are in?',dims:['Identity','Judgement'],hint:'Uncovers confidence, self-assessment accuracy, and role clarity'},
+  {id:'q3',text:'What learning do you do on your own?',dims:['Growth'],hint:'Assesses intrinsic motivation and growth orientation'},
+  {id:'q4',text:'How would you best describe what your role is?',dims:['Systems','Judgement'],hint:'Tests role clarity, systems thinking, and organizational awareness'},
+  {id:'q5',text:'Tell me how you feel about change.',dims:['Growth','Identity'],hint:'Reveals adaptability, growth mindset, and identity stability'},
+  {id:'q6',text:'Why do you do what you do?',dims:['Identity','Relationships'],hint:'Uncovers purpose, intrinsic motivation, and values alignment'}
+];
+const DIMS=['Identity','Judgement','Relationships','Systems','Growth'];
+const DCOL={Identity:'#6b4fb8',Judgement:'#2e6eaa',Relationships:'#aa4e2e',Systems:'#2e7a4e',Growth:'#c9922a'};
+const LEVELS=[{s:1,l:'Low Awareness'},{s:2,l:'Needs Work'},{s:3,l:'Competent'},{s:4,l:'Qualified'},{s:5,l:'Excels'}];
+const REACTIONS=[{id:'receptive',label:'Receptive'},{id:'offended',label:'Offended'},{id:'annoyed',label:'Seem Annoyed'},{id:'engaged',label:'Seem Engaged'}];
+const TABS=['clients','setup','interview','report'];
+const TAB_LABELS={'clients':'Client Profiles','setup':'Setup','interview':'Interview','report':'Report'};
+const SK='pf_diag_v3';
+
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+let state={
+  activeTab:'clients',
+  activeClientId:null,
+  clients:[]
+};
+
+function loadState(){
+  try{const s=localStorage.getItem(SK);if(s)state=JSON.parse(s);}catch(e){}
+  if(!state.clients)state.clients=[];
+  if(!state.activeTab)state.activeTab='clients';
+}
+function saveState(){
+  try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}
+  const el=document.getElementById('save-ind');
+  if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1600);}
+}
+function activeClient(){return state.clients.find(c=>c.id===state.activeClientId)||null;}
+
+// ── URL MODE DETECTION ──
+const _QS=new URLSearchParams(window.location.search);
+const CLIENT_MODE=_QS.get('mode')==='client';
+const SURVEY_CID=_QS.get('cid')||'';
+const SURVEY_PID=_QS.get('pid')||'';
+function getSurveyLink(cid,pid){
+  const base=window.location.href.split('?')[0];
+  return base+'?mode=client&cid='+encodeURIComponent(cid)+'&pid='+encodeURIComponent(pid);
+}
+
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+function initials(n){if(!n)return'?';return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function lvlInfo(s){
+  if(!s||s<1)return{label:'Not Rated',cls:'',color:'#aaa'};
+  const l=LEVELS[Math.round(s)-1]||LEVELS[4];
+  const colors=['#c0392b','#e67e22','#c9a800','#27ae60','#1a6b3c'];
+  return{label:l.l,cls:'lvl-'+Math.round(s),color:colors[Math.round(s)-1]};
+}
+function personScores(p){
+  const tots={},cnts={};
+  DIMS.forEach(d=>{tots[d]=0;cnts[d]=0;});
+  QUESTIONS.forEach(q=>{
+    const a=p.answers&&p.answers[q.id];
+    if(a&&a.ds)q.dims.forEach(d=>{if(a.ds[d]){tots[d]+=a.ds[d];cnts[d]++;}});
+  });
+  const r={};
+  DIMS.forEach(d=>{r[d]=cnts[d]>0?Math.round((tots[d]/cnts[d])*10)/10:null;});
+  return r;
+}
+function overallScore(p){
+  const s=personScores(p);const v=Object.values(s).filter(x=>x!==null);
+  return v.length?Math.round((v.reduce((a,b)=>a+b,0)/v.length)*10)/10:null;
+}
+function clientScores(client){
+  const tots={},cnts={};DIMS.forEach(d=>{tots[d]=0;cnts[d]=0;});
+  (client.people||[]).forEach(p=>{
+    const s=personScores(p);
+    DIMS.forEach(d=>{if(s[d]!==null){tots[d]+=s[d];cnts[d]++;}});
+  });
+  const r={};DIMS.forEach(d=>{r[d]=cnts[d]>0?Math.round((tots[d]/cnts[d])*10)/10:null;});
+  return r;
+}
+function clientOverall(client){
+  const s=clientScores(client);const v=Object.values(s).filter(x=>x!==null);
+  return v.length?Math.round((v.reduce((a,b)=>a+b,0)/v.length)*10)/10:null;
+}
+function completionStatus(p){
+  if(!p.answers)return'empty';
+  const hasResp=QUESTIONS.every(q=>(p.answers[q.id]||{}).resp&&p.answers[q.id].resp.trim().length>0);
+  const hasScores=QUESTIONS.some(q=>{const ds=(p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
+  if(!hasResp&&!hasScores)return'empty';
+  if(hasResp&&hasScores)return'complete';
+  return'partial';
+}
+function clientRespDone(p){
+  if(!p.answers)return false;
+  return QUESTIONS.every(q=>(p.answers[q.id]||{}).resp&&p.answers[q.id].resp.trim().length>0);
+}
+
+/* ─────────────────────────────────────────
+   SUCCESS % ALGORITHM
+───────────────────────────────────────── */
+function calcSuccessPct(scores, reactions, notes){
+  // Weighted dimension scores (out of 5)
+  const weights={Identity:.25,Judgement:.2,Relationships:.2,Systems:.15,Growth:.2};
+  let weightedSum=0,totalWeight=0;
+  DIMS.forEach(d=>{
+    if(scores[d]!==null){weightedSum+=scores[d]*weights[d];totalWeight+=weights[d];}
+  });
+  const baseScore=totalWeight>0?weightedSum/totalWeight:0;
+  let pct=(baseScore/5)*100;
+
+  // Reaction bonuses/penalties
+  let rxBonus=0;
+  REACTIONS.forEach(r=>{
+    if(r.id==='receptive')rxBonus+=reactions[r.id]*3;
+    if(r.id==='engaged')rxBonus+=reactions[r.id]*2;
+    if(r.id==='offended')rxBonus-=reactions[r.id]*5;
+    if(r.id==='annoyed')rxBonus-=reactions[r.id]*3;
+  });
+  pct=Math.min(98,Math.max(5,pct+rxBonus));
+
+  // Notes sentiment boost (simple keyword scan)
+  const allNotes=(notes||'').toLowerCase();
+  const positiveWords=['growth','open','eager','curious','committed','honest','accountable','reflective','coachable','motivated','excited','humble','ready','clear','aligned'];
+  const negativeWords=['defensive','resistant','blame','excuses','closed','stubborn','disengaged','disinterested','dismissive','combative','arrogant','deflect'];
+  let noteAdj=0;
+  positiveWords.forEach(w=>{if(allNotes.includes(w))noteAdj+=1.5;});
+  negativeWords.forEach(w=>{if(allNotes.includes(w))noteAdj-=2;});
+  pct=Math.min(98,Math.max(5,pct+noteAdj));
+  return Math.round(pct);
+}
+
+function personSuccessPct(p){
+  const scores=personScores(p);
+  const rxTotals={receptive:0,offended:0,annoyed:0,engaged:0};
+  let allNotes=p.overallNotes||'';
+  QUESTIONS.forEach(q=>{
+    const a=p.answers&&p.answers[q.id];
+    if(a){
+      REACTIONS.forEach(r=>{if(a.reactions&&a.reactions[r.id])rxTotals[r.id]++;});
+      if(a.resp)allNotes+=' '+a.resp;
+      if(a.notes)allNotes+=' '+a.notes;
+    }
+  });
+  return calcSuccessPct(scores,rxTotals,allNotes);
+}
+
+function clientSuccessPct(client){
+  const scores=clientScores(client);
+  const rxTotals={receptive:0,offended:0,annoyed:0,engaged:0};
+  let allNotes=client.notes||'';
+  (client.people||[]).forEach(p=>{
+    allNotes+=p.overallNotes||'';
+    QUESTIONS.forEach(q=>{
+      const a=p.answers&&p.answers[q.id];
+      if(a){
+        REACTIONS.forEach(r=>{if(a.reactions&&a.reactions[r.id])rxTotals[r.id]++;});
+        if(a.resp)allNotes+=' '+a.resp;
+        if(a.notes)allNotes+=' '+a.notes;
+      }
+    });
+  });
+  return calcSuccessPct(scores,rxTotals,allNotes);
+}
+
+function successLabel(pct){
+  if(pct>=80)return{label:'Strong Fit',color:'#1a6b3c',bg:'#d6ede2'};
+  if(pct>=65)return{label:'Good Potential',color:'#27ae60',bg:'#e6f5ec'};
+  if(pct>=50)return{label:'Moderate Fit',color:'#c9a800',bg:'#fefae0'};
+  if(pct>=35)return{label:'Needs Groundwork',color:'#e67e22',bg:'#fef0e0'};
+  return{label:'Not Ready Yet',color:'#c0392b',bg:'#fde8e6'};
+}
+function successBarColor(pct){
+  if(pct>=80)return'#1a6b3c';if(pct>=65)return'#27ae60';
+  if(pct>=50)return'#c9a800';if(pct>=35)return'#e67e22';return'#c0392b';
+}
+function successNarrative(pct, name){
+  const n=name||'This individual';
+  if(pct>=80)return`${n} demonstrates strong alignment with the People First Leadership OS™. They show high self-awareness, openness to growth, and the kind of mindset that makes consulting engagement productive and lasting. This is a high-probability engagement.`;
+  if(pct>=65)return`${n} shows meaningful readiness and several genuine strengths. Some developmental gaps exist, but the foundation is there for a productive engagement. With focused coaching, this is a strong candidate.`;
+  if(pct>=50)return`${n} has potential but will require foundational work before meaningful leadership transformation can take hold. The engagement could be productive, but expectations around timeline and pace should be set clearly.`;
+  if(pct>=35)return`${n} presents significant gaps in readiness. While not disqualifying, the consulting relationship would need to start at a very foundational level. A candid conversation about readiness and commitment is recommended before proceeding.`;
+  return`Based on the data collected, ${n} does not appear ready for this level of engagement at this time. Core mindset, openness, or self-awareness barriers would likely limit the ROI of a consulting relationship. A follow-up in 6–12 months may be more appropriate.`;
+}
+
+/* ─────────────────────────────────────────
+   RENDER ENGINE
+───────────────────────────────────────── */
+function render(){
+  renderNavTabs();
+  const mc=document.getElementById('main-content');
+  mc.innerHTML='';
+  if(state.activeTab==='clients')renderClients(mc);
+  else if(state.activeTab==='setup')renderSetup(mc);
+  else if(state.activeTab==='interview')renderInterview(mc);
+  else if(state.activeTab==='report')renderReport(mc);
+}
+
+function renderNavTabs(){
+  const nt=document.getElementById('nav-tabs');
+  nt.innerHTML='';
+  TABS.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='nav-tab'+(state.activeTab===t?' active':'');
+    d.textContent=TAB_LABELS[t];
+    d.onclick=()=>{state.activeTab=t;render();};
+    nt.appendChild(d);
+  });
+  const np=document.createElement('button');
+  np.className='btn btn-gold no-print';
+  np.style.cssText='margin:8px 16px 8px auto;font-size:12px;padding:6px 14px;';
+  np.textContent='+ New Profile';
+  np.onclick=startNewProfile;
+  nt.appendChild(np);
+}
+
+/* ─────────────────────────────────────────
+   CLIENTS TAB
+───────────────────────────────────────── */
+function renderClients(mc){
+  if(state.clients.length===0){
+    const e=document.createElement('div');
+    e.className='card empty-state';
+    e.innerHTML=`<h3>No client profiles yet</h3><p>Click <strong>+ New Profile</strong> above to create your first diagnostic.</p>`;
+    mc.appendChild(e);
+    return;
+  }
+
+  const hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;';
+  hdr.innerHTML=`<div><div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy);">Client Profiles</div><div style="font-size:13px;color:var(--text-muted);margin-top:3px;">${state.clients.length} diagnostic${state.clients.length!==1?'s':''} on file</div></div>`;
+  mc.appendChild(hdr);
+
+  const list=document.createElement('div');
+  list.className='client-list';
+
+  state.clients.forEach(client=>{
+    const overall=clientOverall(client);
+    const pct=clientSuccessPct(client);
+    const sl=successLabel(pct);
+    const peopleCount=(client.people||[]).length;
+
+    const row=document.createElement('div');
+    row.className='client-row'+(state.activeClientId===client.id?' active':'');
+    row.innerHTML=`
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="avatar avatar-lg">${initials(client.name)}</div>
+        <div>
+          <div class="client-name-big">${client.name||'Unnamed Company'}</div>
+          <div class="client-meta">${client.industry||''} ${client.industry&&client.contactName?' · ':''} ${client.contactName||''} ${client.date?' · '+client.date:''}</div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span style="font-size:11px;background:var(--cream-dark);color:var(--text-mid);padding:2px 8px;border-radius:10px;">${peopleCount} participant${peopleCount!==1?'s':''}</span>
+            ${overall?`<span style="font-size:11px;background:var(--cream-dark);color:var(--text-mid);padding:2px 8px;border-radius:10px;">Avg score: ${overall.toFixed(1)}/5</span>`:''}
+            ${pct&&pct>0?`<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${sl.bg};color:${sl.color};font-weight:700;">${pct}% Est. Success — ${sl.label}</span>`:''}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-primary btn-sm" style="font-size:12px;padding:7px 14px;" onclick="openClient('${client.id}')">Open</button>
+        <button class="btn btn-danger" onclick="deleteClient(event,'${client.id}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+
+  mc.appendChild(list);
+}
+
+window.openClient=function(id){
+  state.activeClientId=id;
+  const c=activeClient();
+  if(c&&c.people&&c.people.length>0&&!c.activePerson)c.activePerson=c.people[0].id;
+  state.activeTab='setup';
+  render();
+};
+window.deleteClient=function(e,id){
+  e.stopPropagation();
+  if(!confirm('Delete this client profile and all data?'))return;
+  state.clients=state.clients.filter(c=>c.id!==id);
+  if(state.activeClientId===id){state.activeClientId=null;state.activeTab='clients';}
+  saveState();render();
+};
+window.startNewProfile=function(){
+  const id='c_'+Date.now();
+  state.clients.unshift({id,name:'',industry:'',contactName:'',contactEmail:'',contactPhone:'',date:new Date().toLocaleDateString('en-US'),notes:'',people:[],activePerson:null});
+  state.activeClientId=id;
+  state.activeTab='setup';
+  saveState();render();
+};
+
+/* ─────────────────────────────────────────
+   SETUP TAB
+───────────────────────────────────────── */
+function renderSetup(mc){
+  const client=activeClient();
+  if(!client){
+    mc.innerHTML='<div class="card empty-state"><h3>No profile selected</h3><p>Go to Client Profiles to select or create a profile.</p></div>';
+    return;
+  }
+
+  const c1=document.createElement('div');c1.className='card';
+  c1.innerHTML=`
+    <div class="card-title">Company / Client Information</div>
+    <div class="grid-2">
+      <div class="form-group"><label>Company Name</label><input type="text" id="f-name" value="${esc(client.name)}" placeholder="Acme Corp" /></div>
+      <div class="form-group"><label>Industry</label><input type="text" id="f-industry" value="${esc(client.industry||'')}" placeholder="Manufacturing, Healthcare…" /></div>
+    </div>
+    <div class="grid-3">
+      <div class="form-group"><label>Primary Contact</label><input type="text" id="f-contact" value="${esc(client.contactName||'')}" placeholder="Jane Smith" /></div>
+      <div class="form-group"><label>Email</label><input type="email" id="f-email" value="${esc(client.contactEmail||'')}" placeholder="jane@company.com" /></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="f-phone" value="${esc(client.contactPhone||'')}" placeholder="(419) 555-0100" /></div>
+    </div>
+    <div class="form-group"><label>Assessment Date</label><input type="text" id="f-date" value="${esc(client.date||'')}" placeholder="June 12, 2025" /></div>
+    <div class="form-group"><label>Background / Context Notes</label><textarea id="f-notes" placeholder="Why did they reach out? What problems are they facing? Any context before the interviews…">${esc(client.notes||'')}</textarea></div>
+  `;
+  mc.appendChild(c1);
+
+  setTimeout(()=>{
+    ['name','industry','contact','email','phone','date'].forEach(f=>{
+      const el=document.getElementById('f-'+f);
+      if(el)el.addEventListener('input',e=>{
+        const key={name:'name',industry:'industry',contact:'contactName',email:'contactEmail',phone:'contactPhone',date:'date'}[f];
+        client[key]=e.target.value;saveState();
+      });
+    });
+    const notesEl=document.getElementById('f-notes');
+    if(notesEl)notesEl.addEventListener('input',e=>{client.notes=e.target.value;saveState();});
+  },50);
+
+  const c2=document.createElement('div');c2.className='card';
+  c2.innerHTML=`
+    <div class="card-title">Interview Participants</div>
+    <div id="people-list-setup"></div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div class="section-label">Add New Participant</div>
+      <div class="grid-2">
+        <div class="form-group"><label>Full Name</label><input type="text" id="new-name" placeholder="Sarah Johnson" /></div>
+        <div class="form-group"><label>Role / Title</label><input type="text" id="new-role" placeholder="Operations Manager" /></div>
+      </div>
+      <button class="btn btn-primary" onclick="addPerson()">Add Participant</button>
+    </div>
+  `;
+  mc.appendChild(c2);
+  renderPeopleSetupList(client);
+
+  if((client.people||[]).length>0){
+    const go=document.createElement('div');go.style.cssText='text-align:center;margin-top:4px;';
+    go.innerHTML=`<button class="btn btn-gold" onclick="window.gotoTab('interview')">Begin Interviews →</button>`;
+    mc.appendChild(go);
+  }
+}
+
+function renderPeopleSetupList(client){
+  const container=document.getElementById('people-list-setup');
+  if(!container)return;
+  if(!(client.people||[]).length){container.innerHTML='<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No participants yet.</div>';return;}
+  container.innerHTML='';
+  client.people.forEach(p=>{
+    const hasCResp=clientRespDone(p);
+    const hasScores=QUESTIONS.some(q=>{const ds=(p.answers&&p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
+    let sl,st;
+    if(hasCResp&&hasScores){sl='badge-complete';st='Complete';}
+    else if(hasCResp&&!hasScores){sl='badge-partial';st='Awaiting Roundtable';}
+    else{sl='badge-empty';st='Not Started';}
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--cream);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;flex-wrap:wrap;gap:8px;';
+    d.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="avatar">${initials(p.name)}</div>
+        <div><div class="pname">${p.name}</div><div class="prole">${p.role||'—'}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="badge ${sl}">${st}</span>
+        <button class="btn btn-outline" style="font-size:11px;padding:5px 12px;" onclick="showSurveyLinkModal('${client.id}','${p.id}')">&#9993; Get Survey Link</button>
+        ${hasCResp?'':`<button class="btn btn-primary" style="font-size:11px;padding:5px 12px;" onclick="showImportModal('${client.id}','${p.id}')">&#8595; Import Response</button>`}
+        <button class="btn btn-danger" onclick="removePerson('${p.id}')">Remove</button>
+      </div>
+    `;
+    container.appendChild(d);
+  });
+}
+
+window.addPerson=function(){
+  const client=activeClient();if(!client)return;
+  const name=document.getElementById('new-name').value.trim();
+  const role=document.getElementById('new-role').value.trim();
+  if(!name){alert('Please enter a name.');return;}
+  if(!client.people)client.people=[];
+  const id='p_'+Date.now();
+  client.people.push({id,name,role,answers:{},overallNotes:''});
+  if(!client.activePerson)client.activePerson=id;
+  document.getElementById('new-name').value='';
+  document.getElementById('new-role').value='';
+  saveState();renderPeopleSetupList(client);
+  if(client.people.length===1)render();
+};
+window.removePerson=function(id){
+  const client=activeClient();if(!client)return;
+  if(!confirm('Remove this participant?'))return;
+  client.people=client.people.filter(p=>p.id!==id);
+  if(client.activePerson===id)client.activePerson=client.people[0]?.id||null;
+  saveState();render();
+};
+window.gotoTab=function(tab){state.activeTab=tab;render();};
+
+/* ─────────────────────────────────────────
+   INTERVIEW TAB
+───────────────────────────────────────── */
+function renderInterview(mc){
+  const client=activeClient();
+  if(!client||(client.people||[]).length===0){
+    mc.innerHTML='<div class="card empty-state"><h3>No participants</h3><p>Add participants in the Setup tab first.</p></div>';
+    return;
+  }
+  if(!client.people.find(p=>p.id===client.activePerson))client.activePerson=client.people[0].id;
+
+  const layout=document.createElement('div');layout.className='interview-layout';
+
+  // Sidebar
+  const sb=document.createElement('div');
+  sb.innerHTML=`<div class="section-label" style="margin-bottom:10px;">${esc(client.name||'Company')} — Participants</div>`;
+  client.people.forEach(p=>{
+    const hasCR=clientRespDone(p);
+    const hasSc=QUESTIONS.some(q=>{const ds=(p.answers&&p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
+    let isl,ist;
+    if(hasCR&&hasSc){isl='badge-complete';ist='Complete';}
+    else if(hasCR&&!hasSc){isl='badge-partial';ist='Awaiting Roundtable';}
+    else{isl='badge-empty';ist='Not Started';}
+    const pc=document.createElement('div');
+    pc.className='person-card'+(client.activePerson===p.id?' active':'');
+    pc.onclick=()=>{client.activePerson=p.id;render();};
+    pc.innerHTML=`<div><div class="pname">${p.name}</div><div class="prole">${p.role||'—'}</div></div><span class="badge ${isl}">${ist}</span>`;
+    sb.appendChild(pc);
+  });
+  layout.appendChild(sb);
+
+  // Main panel
+  const main=document.createElement('div');
+  const ap=client.people.find(p=>p.id===client.activePerson);
+  if(!ap){main.innerHTML='<div class="card empty-state"><h3>Select a participant</h3></div>';layout.appendChild(main);mc.appendChild(layout);return;}
+  if(!ap.answers)ap.answers={};
+
+  const _hasCR=clientRespDone(ap);
+  const ph=document.createElement('div');ph.className='card';ph.style.marginBottom='16px';
+  ph.innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="avatar avatar-lg">${initials(ap.name)}</div>
+      <div style="flex:1;">
+        <div style="font-size:18px;font-weight:500;color:var(--navy);">${ap.name}</div>
+        <div style="font-size:13px;color:var(--text-muted);">${ap.role||'No role specified'}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${_hasCR
+          ? '<span style="font-size:12px;background:var(--green-light);color:var(--green);padding:5px 12px;border-radius:20px;font-weight:700;">&#10003; Survey Received</span>'
+          : `<button class="btn btn-outline" style="font-size:12px;" onclick="showSurveyLinkModal('${client.id}','${ap.id}')">&#9993; Get Survey Link</button>
+             <button class="btn btn-primary" style="font-size:12px;" onclick="showImportModal('${client.id}','${ap.id}')">&#8595; Import Response</button>`
+        }
+      </div>
+    </div>
+    <div style="margin-top:10px;" class="dim-pills">${DIMS.map(d=>`<span class="dp dp-${d}">${d}</span>`).join('')}</div>
+    ${!_hasCR?`<div style="margin-top:12px;padding:10px 14px;background:var(--cream-dark);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.5;">
+      <strong style="color:var(--text-mid);">Awaiting survey.</strong> Send the link to ${esc(ap.name)}, then paste their response code using Import Response once they send it back.
+    </div>`:`<div style="margin-top:12px;padding:10px 14px;background:var(--green-light);border-radius:8px;font-size:12px;color:var(--green);line-height:1.5;">
+      <strong>Survey responses loaded.</strong> Scroll through the questions below. Complete the Roundtable section for each one after your group session.
+    </div>`}
+  `;
+  main.appendChild(ph);
+
+  QUESTIONS.forEach((q,idx)=>{
+    if(!ap.answers[q.id])ap.answers[q.id]={resp:'',reactions:{},ds:{},notes:''};
+    const ans=ap.answers[q.id];
+    const block=document.createElement('div');block.className='q-block';
+    block.innerHTML=`
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
+        <div class="q-num">${idx+1}</div>
+        <div style="flex:1;">
+          <div class="q-text">${q.text}</div>
+          <div class="dim-pills">${q.dims.map(d=>`<span class="dp dp-${d}">${d}</span>`).join('')}</div>
+          <div class="q-hint">${q.hint}</div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:8px;">
+          Client Response
+          ${(ans.resp||'').trim()?'<span style="font-size:10px;font-weight:700;background:var(--green-light);color:var(--green);padding:2px 9px;border-radius:10px;text-transform:none;letter-spacing:0;">&#10003; Received</span>':'<span style="font-size:10px;background:var(--cream-dark);color:var(--text-muted);padding:2px 9px;border-radius:10px;text-transform:none;letter-spacing:0;">Awaiting response</span>'}
+        </label>
+        <textarea id="resp_${q.id}" placeholder="Client response will appear here after you import their code…" style="${(ans.resp||'').trim()?'background:var(--green-light);border-color:#b8dfc9;':''}">${esc(ans.resp||'')}</textarea>
+      </div>
+      <div style="margin-top:14px;padding:16px;background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:10px;">&#128274; Roundtable — Consultant Only</div>
+        <div class="reaction-group" style="margin-top:0;padding-top:0;border-top:none;">
+          <span class="rlabel">Reaction:</span>
+          ${REACTIONS.map(r=>`<span class="rchip${ans.reactions&&ans.reactions[r.id]?' sel-'+r.id:''}" id="chip_${q.id}_${r.id}" onclick="toggleR('${ap.id}','${q.id}','${r.id}')">${r.label}</span>`).join('')}
+        </div>
+        <div class="score-row" style="flex-direction:column;gap:8px;border-top:1px solid var(--gold-light);margin-top:10px;padding-top:10px;">
+          <div class="section-label" style="color:var(--gold);">OS Dimension Scores</div>
+          ${q.dims.map(d=>`
+            <div class="score-dim-group">
+              <span class="sdim-label" style="color:${DCOL[d]};">${d}</span>
+              ${LEVELS.map(l=>`<button class="sb s${l.s}${ans.ds&&ans.ds[d]===l.s?' a':''}" onclick="setScore('${ap.id}','${q.id}','${d}',${l.s})">${l.s} — ${l.l}</button>`).join('')}
+            </div>
+          `).join('')}
+        </div>
+        <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+          <label style="color:var(--gold);">Private Notes (not in report)</label>
+          <textarea id="notes_${q.id}" placeholder="Observations, body language, nonverbal cues…">${esc(ans.notes||'')}</textarea>
+        </div>
+      </div>
+    `;
+    main.appendChild(block);
+  });
+
+  const finalN=document.createElement('div');finalN.className='card';
+  finalN.innerHTML=`<div class="card-title">Overall Interview Notes</div><textarea id="overall-notes" placeholder="Overall impressions, patterns, standout moments…" style="min-height:100px;">${esc(ap.overallNotes||'')}</textarea>`;
+  main.appendChild(finalN);
+
+  layout.appendChild(main);
+  mc.appendChild(layout);
+
+  setTimeout(()=>{
+    QUESTIONS.forEach(q=>{
+      const re=document.getElementById('resp_'+q.id);
+      const ne=document.getElementById('notes_'+q.id);
+      if(re)re.addEventListener('input',e=>{ap.answers[q.id].resp=e.target.value;saveState();});
+      if(ne)ne.addEventListener('input',e=>{ap.answers[q.id].notes=e.target.value;saveState();});
+    });
+    const oe=document.getElementById('overall-notes');
+    if(oe)oe.addEventListener('input',e=>{ap.overallNotes=e.target.value;saveState();});
+  },50);
+}
+
+window.toggleR=function(pid,qid,rid){
+  const c=activeClient();if(!c)return;
+  const p=c.people.find(x=>x.id===pid);if(!p||!p.answers[qid])return;
+  if(!p.answers[qid].reactions)p.answers[qid].reactions={};
+  p.answers[qid].reactions[rid]=!p.answers[qid].reactions[rid];
+  const chip=document.getElementById(`chip_${qid}_${rid}`);
+  if(chip){
+    REACTIONS.forEach(r=>chip.classList.remove('sel-'+r.id));
+    if(p.answers[qid].reactions[rid])chip.classList.add('sel-'+rid);
+  }
+  saveState();
+};
+window.setScore=function(pid,qid,dim,score){
+  const c=activeClient();if(!c)return;
+  const p=c.people.find(x=>x.id===pid);if(!p||!p.answers[qid])return;
+  if(!p.answers[qid].ds)p.answers[qid].ds={};
+  p.answers[qid].ds[dim]=score;
+  saveState();
+  document.querySelectorAll('.score-dim-group').forEach(grp=>{
+    grp.querySelectorAll('.sb').forEach(btn=>{
+      const oc=btn.getAttribute('onclick')||'';
+      if(oc.includes(`'${qid}'`)&&oc.includes(`'${dim}'`)){
+        LEVELS.forEach(l=>btn.classList.remove('a'));
+        if(oc.includes(`,${score})`))btn.classList.add('a');
+      }
+    });
+  });
+};
+
+/* ─────────────────────────────────────────
+   REPORT TAB
+───────────────────────────────────────── */
+function renderReport(mc){
+  const client=activeClient();
+  if(!client){mc.innerHTML='<div class="card empty-state"><h3>No profile selected</h3><p>Open a client profile first.</p></div>';return;}
+  const hasData=(client.people||[]).some(p=>overallScore(p)!==null);
+
+  const hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;';
+  hdr.innerHTML=`
+    <div>
+      <div class="report-title-big">${esc(client.name||'Company')} — Leadership Growth Readiness</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">People First Leadership OS™ · ${client.date||new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}${client.contactName?' · '+client.contactName:''}</div>
+    </div>
+    <button class="btn btn-outline no-print" onclick="window.print()">Print / Export PDF</button>
+  `;
+  mc.appendChild(hdr);
+
+  if(!hasData){
+    const e=document.createElement('div');e.className='card empty-state';
+    e.innerHTML='<h3>No scores yet</h3><p>Complete interviews and rate responses to generate the report.</p>';
+    mc.appendChild(e);return;
+  }
+
+  const cScores=clientScores(client);
+  const cOverall=clientOverall(client);
+  const cPct=clientSuccessPct(client);
+  const cSl=successLabel(cPct);
+  const cLvl=cOverall?lvlInfo(Math.round(cOverall)):{label:'',cls:''};
+
+  // Company overview card
+  const co=document.createElement('div');co.className='card';
+  co.innerHTML=`
+    <div class="card-title">Company Overview — ${esc(client.name||'All Participants')}</div>
+    <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+      <div>
+        <div class="company-score-num">${cOverall?cOverall.toFixed(1):'—'}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Overall Readiness / 5</div>
+        ${cOverall?`<div style="margin-top:8px;"><span class="lvl ${cLvl.cls}">${cLvl.label}</span></div>`:''}
+      </div>
+      <div style="flex:1;min-width:280px;">
+        ${DIMS.map(d=>{
+          const s=cScores[d];const pct=s?(s/5*100):0;const lv=s?lvlInfo(Math.round(s)):null;
+          return`<div class="dim-row-report">
+            <span class="dlabel">${d}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${DCOL[d]};">${pct>18?(lv?lv.label:''):''}</div></div>
+            <span style="font-size:12px;font-weight:700;color:${DCOL[d]};width:55px;text-align:right;">${s?s.toFixed(1)+'/5':'—'}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    ${genInsight(cScores)}
+  `;
+  mc.appendChild(co);
+
+  // COMPANY SUCCESS METER
+  const csm=document.createElement('div');csm.className='card';
+  csm.innerHTML=`
+    <div class="card-title">Estimated Consulting Success — ${esc(client.name||'Company')}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Based on aggregated OS scores, engagement signals, and interviewer notes. This is a directional estimate, not a guarantee — use it to guide your follow-up conversation.</div>
+    ${renderSuccessMeter(cPct,cSl,'company')}
+    <div style="margin-top:16px;font-size:13px;color:var(--text);line-height:1.7;">
+      ${successNarrative(cPct,esc(client.name||'This organization'))}
+    </div>
+    <div style="margin-top:14px;padding:12px 16px;background:var(--cream-dark);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.6;">
+      <strong style="color:var(--text-mid);">How this is calculated:</strong> Weighted dimension scores (Identity 25%, Judgement 20%, Relationships 20%, Systems 15%, Growth 20%) + engagement reaction signals + keyword sentiment from all notes and responses.
+    </div>
+  `;
+  mc.appendChild(csm);
+
+  // Individual reports
+  const ir=document.createElement('div');ir.className='card';
+  ir.innerHTML=`<div class="card-title">Individual Reports</div>`;
+
+  (client.people||[]).forEach(p=>{
+    const sc=personScores(p);const os=overallScore(p);
+    const lv=os?lvlInfo(Math.round(os)):{label:'',cls:''};
+    const pPct=personSuccessPct(p);const pSl=successLabel(pPct);
+
+    const rxAll={receptive:0,offended:0,annoyed:0,engaged:0};
+    QUESTIONS.forEach(q=>{const a=p.answers&&p.answers[q.id];if(a&&a.reactions)REACTIONS.forEach(r=>{if(a.reactions[r.id])rxAll[r.id]++;});});
+
+    const pc=document.createElement('div');pc.className='person-report-card';
+    pc.innerHTML=`
+      <div class="prh">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="avatar avatar-lg">${initials(p.name)}</div>
+          <div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);">${esc(p.name)}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${esc(p.role||'—')}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:28px;font-weight:700;color:var(--navy);">${os?os.toFixed(1):'—'}</div>
+          <div style="font-size:11px;color:var(--text-muted);">Overall / 5</div>
+          ${os?`<span class="lvl ${lv.cls}" style="margin-top:4px;display:inline-block;">${lv.label}</span>`:''}
+        </div>
+      </div>
+      ${DIMS.map(d=>{
+        const s=sc[d];const pct=s?(s/5*100):0;const lvi=s?lvlInfo(Math.round(s)):null;
+        return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:600;color:${DCOL[d]};width:100px;flex-shrink:0;">${d}</span>
+          <div style="flex:1;height:16px;background:var(--cream-dark);border-radius:3px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:${DCOL[d]};border-radius:3px;display:flex;align-items:center;padding-left:6px;">
+              ${pct>18?`<span style="font-size:9px;font-weight:700;color:white;">${lvi?lvi.label:''}</span>`:''}
+            </div>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:${DCOL[d]};width:45px;text-align:right;">${s?s.toFixed(1):'—'}</span>
+        </div>`;
+      }).join('')}
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Engagement:</span>
+        ${REACTIONS.map(r=>rxAll[r.id]>0?`<span style="font-size:11px;background:var(--cream-dark);color:var(--text-mid);padding:2px 9px;border-radius:10px;">${r.label}: ${rxAll[r.id]}×</span>`:'' ).join('')}
+      </div>
+      <div style="margin-top:14px;">
+        ${renderSuccessMeter(pPct,pSl,'person',p.name)}
+      </div>
+      <div style="margin-top:10px;font-size:13px;color:var(--text);line-height:1.7;">
+        ${successNarrative(pPct,esc(p.name))}
+      </div>
+      ${p.overallNotes?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Interview Notes</div><div style="font-size:13px;color:var(--text);line-height:1.6;font-style:italic;">"${esc(p.overallNotes)}"</div></div>`:''}
+    `;
+    ir.appendChild(pc);
+  });
+  mc.appendChild(ir);
+}
+
+function renderSuccessMeter(pct,sl,scope,name){
+  return`
+    <div class="success-meter">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:4px;">Estimated % Consulting Success${scope==='person'&&name?' — '+name:''}</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="success-pct" style="color:${sl.color};">${pct}%</span>
+            <span style="font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px;background:${sl.bg};color:${sl.color};">${sl.label}</span>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--text-muted);max-width:220px;line-height:1.5;">This is a directional estimate to support your consultation conversation — not a definitive assessment.</div>
+      </div>
+      <div class="success-bar-track" style="margin-top:12px;">
+        <div class="success-bar-fill" style="width:${pct}%;background:${successBarColor(pct)};"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px;">
+        <span>Not Ready</span><span>Moderate</span><span>Strong Fit</span>
+      </div>
+    </div>
+  `;
+}
+
+function genInsight(scores){
+  const sorted=DIMS.map(d=>({d,s:scores[d]})).filter(x=>x.s!==null).sort((a,b)=>a.s-b.s);
+  if(!sorted.length)return'';
+  const lo=sorted[0],hi=sorted[sorted.length-1];
+  const llo=lvlInfo(Math.round(lo.s)),lhi=lvlInfo(Math.round(hi.s));
+  return`<div class="insight-box">
+    <strong>Diagnostic Insight:</strong> The organization shows the strongest readiness in <strong>${hi.d}</strong> (${hi.s.toFixed(1)} — ${lhi.label}).
+    The dimension most in need of development is <strong>${lo.d}</strong> (${lo.s.toFixed(1)} — ${llo.label}).
+    Per the People First Leadership OS™, prioritizing the <strong>${lo.d}</strong> layer will unlock the most flywheel momentum across all other dimensions.
+  </div>`;
+}
+
+
+/* ─────────────────────────────────────────
+   SURVEY LINK MODAL
+───────────────────────────────────────── */
+function showSurveyLinkModal(cid,pid){
+  const link=getSurveyLink(cid,pid);
+  const cl=state.clients.find(c=>c.id===cid);
+  const pr=cl&&(cl.people||[]).find(p=>p.id===pid);
+  if(!pr)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML=`<div style="background:white;border-radius:12px;padding:32px;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);margin-bottom:6px;">Survey Link — ${esc(pr.name)}</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6;">Send this link to ${esc(pr.name)}. They will see a clean survey with only the 6 questions — no scoring, no consultant fields, nothing internal. When they submit, they receive a short <strong>response code</strong> to email back to you.</p>
+    <div id="_sld" style="background:var(--cream-dark);border:1px solid var(--border-dark);border-radius:8px;padding:12px 14px;font-size:11px;font-family:monospace;word-break:break-all;line-height:1.6;color:var(--text);margin-bottom:14px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button id="_slcopy" style="background:var(--navy);color:white;border:none;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Copy Link</button>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;color:var(--text-mid);border:1px solid var(--border-dark);padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Close</button>
+      <span id="_slcc" style="font-size:12px;color:var(--green);opacity:0;transition:opacity .3s;">Copied!</span>
+    </div>
+    <div style="margin-top:16px;padding:10px 14px;background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;font-size:12px;color:var(--text-mid);line-height:1.6;">
+      <strong>Workflow:</strong> Client opens link &#8594; fills out 6 questions &#8594; submits and receives a code &#8594; emails code to you &#8594; you click <em>Import Response</em> and paste it in &#8594; their answers populate the Interview tab.
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  document.getElementById('_sld').textContent=link;
+  document.getElementById('_slcopy').onclick=function(){
+    const fn=()=>{const el=document.getElementById('_slcc');if(el){el.style.opacity=1;setTimeout(()=>el.style.opacity=0,2500);}};
+    navigator.clipboard.writeText(link).then(fn).catch(()=>{
+      const t=document.createElement('textarea');t.value=link;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();
+    });
+  };
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+/* ─────────────────────────────────────────
+   IMPORT RESPONSE MODAL
+───────────────────────────────────────── */
+function showImportModal(cid,pid){
+  const cl=state.clients.find(c=>c.id===cid);
+  const pr=cl&&(cl.people||[]).find(p=>p.id===pid);
+  if(!pr)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML=`<div style="background:white;border-radius:12px;padding:32px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);margin-bottom:6px;">Import Response — ${esc(pr.name)}</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Paste the response code ${esc(pr.name)} emailed back to you. Their written answers will load into the Interview tab so you can add your roundtable observations and OS scores.</p>
+    <textarea id="_ici" placeholder="Paste response code here…" style="width:100%;padding:12px;border:1px solid var(--border-dark);border-radius:8px;font-family:monospace;font-size:11px;min-height:90px;background:var(--cream);resize:vertical;margin-bottom:10px;"></textarea>
+    <div id="_ierr" style="font-size:12px;color:var(--red);margin-bottom:10px;display:none;"></div>
+    <div style="display:flex;gap:10px;">
+      <button id="_iimport" style="background:var(--green);color:white;border:none;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Import</button>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;color:var(--text-mid);border:1px solid var(--border-dark);padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  document.getElementById('_iimport').onclick=()=>processImport(cid,pid);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+function processImport(cid,pid){
+  const raw=(document.getElementById('_ici').value||'').trim();
+  const err=document.getElementById('_ierr');
+  if(err)err.style.display='none';
+  if(!raw){if(err){err.textContent='Please paste the response code.';err.style.display='block';}return;}
+  try{
+    const data=JSON.parse(atob(raw));
+    if(!data.responses)throw new Error();
+    const cl=state.clients.find(c=>c.id===cid);
+    const pr=cl&&(cl.people||[]).find(p=>p.id===pid);
+    if(!pr)throw new Error();
+    if(!pr.answers)pr.answers={};
+    QUESTIONS.forEach(q=>{
+      if(data.responses[q.id]){
+        if(!pr.answers[q.id])pr.answers[q.id]={resp:'',reactions:{},ds:{},notes:''};
+        pr.answers[q.id].resp=data.responses[q.id];
+      }
+    });
+    pr.surveyImportedAt=data.submittedAt||new Date().toISOString();
+    saveState();
+    document.querySelector('div[style*="position:fixed"]').remove();
+    state.activeTab='interview';
+    cl.activePerson=pid;
+    render();
+    setTimeout(()=>{
+      const b=document.createElement('div');
+      b.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.2);white-space:nowrap;';
+      b.textContent='Responses imported. Add roundtable observations and OS scores to complete.';
+      document.body.appendChild(b);
+      setTimeout(()=>b.remove(),4000);
+    },100);
+  }catch(e){
+    const err2=document.getElementById('_ierr');
+    if(err2){err2.textContent='Could not read that code. Paste the full code exactly as received.';err2.style.display='block';}
+  }
+}
+
+/* ─────────────────────────────────────────
+   CLIENT SURVEY RENDERER
+───────────────────────────────────────── */
+function renderClientSurvey(){
+  const client=state.clients.find(c=>c.id===SURVEY_CID);
+  const person=client&&(client.people||[]).find(p=>p.id===SURVEY_PID);
+
+  // Replace header
+  document.querySelector('.app-header').innerHTML=`
+    <div>
+      <h1 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:white;">Leadership Assessment</h1>
+      <div style="font-size:11px;color:var(--gold-mid);text-transform:uppercase;letter-spacing:.1em;margin-top:2px;">People First Consulting · Confidential</div>
+    </div>
+    <span class="badge-1p">1P</span>
+  `;
+  document.getElementById('nav-tabs').style.display='none';
+
+  const mc=document.getElementById('main-content');
+  mc.style.cssText='flex:1;overflow-y:auto;padding:32px;max-width:700px;margin:0 auto;width:100%;';
+  mc.innerHTML='';
+
+  if(!client||!person){
+    mc.innerHTML=`<div class="card" style="text-align:center;padding:48px 24px;">
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy);margin-bottom:10px;">Survey Not Found</div>
+      <p style="font-size:14px;color:var(--text-muted);">This link appears to be invalid or expired. Please contact Kyle McCalla at <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a> for a new link.</p>
+    </div>`;
+    return;
+  }
+
+  if(!person.answers)person.answers={};
+  const alreadyDone=clientRespDone(person);
+
+  // Welcome card
+  const wc=document.createElement('div');
+  wc.className='card';
+  wc.style.borderTop='4px solid var(--gold)';
+  wc.innerHTML=`
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy);margin-bottom:10px;">Leadership Assessment</div>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:8px;">Thank you for taking the time to complete this. Your honest responses make this assessment significantly more valuable — there are no right or wrong answers.</p>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:16px;">Write in your own words. Your responses are confidential and will be reviewed by Kyle McCalla at People First Consulting alongside observations from your group roundtable.</p>
+    <div style="background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
+      <div style="width:42px;height:42px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">${initials(person.name)}</div>
+      <div>
+        <div style="font-weight:600;font-size:15px;color:var(--navy);">${esc(person.name)}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${esc(person.role||'')}${person.role&&client.name?' · ':''}${esc(client.name||'')}</div>
+      </div>
+    </div>
+    ${alreadyDone?'<div style="margin-top:14px;padding:10px 14px;background:var(--green-light);border-radius:8px;font-size:13px;color:var(--green);font-weight:500;">Your responses have already been submitted and are shown below for reference.</div>':''}
+  `;
+  mc.appendChild(wc);
+
+  // Progress
+  const pw=document.createElement('div');
+  pw.innerHTML=`
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:5px;">
+      <span id="_cprog">0 of ${QUESTIONS.length} answered</span>
+      <span style="font-weight:600;color:var(--navy);">${esc(client.name||'')}</span>
+    </div>
+    <div style="height:4px;background:var(--cream-dark);border-radius:2px;margin-bottom:24px;overflow:hidden;">
+      <div id="_cprogfill" style="height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width .3s;"></div>
+    </div>
+  `;
+  mc.appendChild(pw);
+
+  // Questions — client only sees text + "Your Response" textarea
+  QUESTIONS.forEach((q,idx)=>{
+    if(!person.answers[q.id])person.answers[q.id]={resp:'',reactions:{},ds:{},notes:''};
+    const ans=person.answers[q.id];
+    const card=document.createElement('div');
+    card.className='q-block';
+    card.innerHTML=`
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;">
+        <div class="q-num">${idx+1}</div>
+        <div>
+          <div class="q-text">${q.text}</div>
+          <div class="q-hint" style="margin-top:5px;">${q.hint}</div>
+        </div>
+      </div>
+      <label>Your Response</label>
+      <textarea id="_cr_${q.id}" placeholder="Write your honest response here…" ${alreadyDone?'readonly style="background:var(--cream-dark);color:var(--text-muted);"':''}>${esc(ans.resp||'')}</textarea>
+    `;
+    mc.appendChild(card);
+  });
+
+  if(!alreadyDone){
+    const sc=document.createElement('div');
+    sc.className='card';
+    sc.innerHTML=`
+      <div style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--navy);margin-bottom:8px;">Ready to submit?</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;">Answer all six questions, then submit. You will receive a short <strong>response code</strong> — please copy it and email it back to Kyle McCalla at <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a>. That completes your part of the assessment.</p>
+      <button id="_csubmit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:13px;opacity:.6;" disabled onclick="submitClientSurvey('${SURVEY_CID}','${SURVEY_PID}')">Answer all questions to submit</button>
+    `;
+    mc.appendChild(sc);
+    setTimeout(()=>{
+      QUESTIONS.forEach(q=>{
+        const ta=document.getElementById('_cr_'+q.id);
+        if(ta)ta.addEventListener('input',()=>{
+          person.answers[q.id].resp=ta.value;
+          saveState();
+          _updateClientProgress(person);
+        });
+      });
+      _updateClientProgress(person);
+    },50);
+  } else {
+    // Already submitted — show the code again
+    _showResponseCode(person);
+  }
+}
+
+function _updateClientProgress(person){
+  const n=QUESTIONS.filter(q=>(person.answers[q.id]||{}).resp&&person.answers[q.id].resp.trim().length>0).length;
+  const pct=Math.round(n/QUESTIONS.length*100);
+  const f=document.getElementById('_cprogfill');const l=document.getElementById('_cprog');const b=document.getElementById('_csubmit');
+  if(f)f.style.width=pct+'%';
+  if(l)l.textContent=n+' of '+QUESTIONS.length+' answered';
+  if(b){const ok=n===QUESTIONS.length;b.disabled=!ok;b.style.opacity=ok?'1':'.6';b.textContent=ok?'Submit My Assessment →':'Answer all questions to submit ('+n+'/'+QUESTIONS.length+' done)';}
+}
+
+function submitClientSurvey(cid,pid){
+  const cl=state.clients.find(c=>c.id===cid);
+  const pr=cl&&(cl.people||[]).find(p=>p.id===pid);
+  if(!pr)return;
+  // Capture final textarea values
+  QUESTIONS.forEach(q=>{const ta=document.getElementById('_cr_'+q.id);if(ta)pr.answers[q.id].resp=ta.value;});
+  pr.surveySubmittedAt=new Date().toISOString();
+  saveState();
+  // Replace submit button card
+  const btn=document.getElementById('_csubmit');
+  if(btn&&btn.closest('.card'))btn.closest('.card').remove();
+  _showResponseCode(pr);
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+function _showResponseCode(person){
+  const mc=document.getElementById('main-content');
+  // Build the response payload — only written responses
+  const responses={};
+  QUESTIONS.forEach(q=>{responses[q.id]=(person.answers[q.id]||{}).resp||'';});
+  const payload={pid:SURVEY_PID,name:person.name,responses,submittedAt:person.surveySubmittedAt||new Date().toISOString()};
+  const code=btoa(JSON.stringify(payload));
+  const rc=document.createElement('div');
+  rc.className='card';
+  rc.style.borderTop='4px solid var(--green)';
+  rc.innerHTML=`
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--green);margin-bottom:8px;">&#10003; Submitted — one more step</div>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:6px;">Your responses are saved. Please <strong>copy the code below</strong> and email it to Kyle McCalla at <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a> — this is what allows him to load your answers into the assessment tool.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">This code contains only your written responses — nothing else.</p>
+    <div id="_rcode" style="background:var(--cream-dark);border:1px solid var(--border-dark);border-radius:8px;padding:14px;font-family:monospace;font-size:11px;word-break:break-all;line-height:1.6;max-height:130px;overflow-y:auto;margin-bottom:12px;"></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button id="_rcopy" style="background:var(--gold);color:var(--navy);border:none;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Copy Code</button>
+      <span id="_rcc" style="font-size:12px;color:var(--green);opacity:0;transition:opacity .3s;">Copied!</span>
+    </div>
+  `;
+  mc.appendChild(rc);
+  document.getElementById('_rcode').textContent=code;
+  document.getElementById('_rcopy').onclick=function(){
+    const fn=()=>{const el=document.getElementById('_rcc');if(el){el.style.opacity=1;setTimeout(()=>el.style.opacity=0,2500);}};
+    navigator.clipboard.writeText(code).then(fn).catch(()=>{
+      const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();
+    });
+  };
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ─────────────────────────────────────────
+   DEMO DATA
+───────────────────────────────────────── */
+function seedDemoData(){
+  if(state.clients.length>0)return; // don't overwrite real data
+
+  const demo={
+    id:'demo_client_1',
+    name:'Meridian Building Solutions',
+    industry:'Construction & Contracting',
+    contactName:'Rachel Hoover',
+    contactEmail:'rhoover@meridianbuilds.com',
+    contactPhone:'(419) 882-3311',
+    date:'March 20, 2025',
+    notes:'Mid-size regional contractor, ~85 employees. Owner approached us after a rough Q4 — two project managers quit, morale issues on the floor. Concerned about lack of leadership pipeline. Open to change but not sure where to start. Budget conversations went well.',
+    activePerson:'p_demo1',
+    people:[
+      {
+        id:'p_demo1',
+        name:'Rachel Hoover',
+        role:'Owner / President',
+        overallNotes:'Very self-aware for a business owner. Admitted she avoids conflict which has created blind spots. Receptive throughout, engaged on growth questions. She\'s the key driver — if she\'s in, the org will follow. Coachable. Motivated by legacy.',
+        answers:{
+          q1:{resp:'I\'m consistent. I show up every day, first in last out. I hold myself to the same standard I hold my team. I think that sets a tone.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:3},notes:'Answered confidently. Good self-awareness but response was task-focused — didn\'t mention development or coaching.'},
+          q2:{resp:'I built this company from nothing. I understand every single part of it. I know the work, I know the people, I know the customers.',reactions:{receptive:true,engaged:true},ds:{Identity:3,Judgement:3},notes:'Competence-based answer. No mention of leading others, developing talent, or working through people.'},
+          q3:{resp:'Honestly? Not as much as I used to. I read some books. I listen to podcasts on the drive in. I went to a leadership summit two years ago. I want to do more of that.',reactions:{receptive:true},ds:{Growth:3},notes:'Honest answer. Slight defensive tone when admitting she doesn\'t learn as much. Self-aware about the gap.'},
+          q4:{resp:'My job is to make sure everybody else can do their job. Keep the lights on, keep clients happy, keep the team paid.',reactions:{receptive:true,engaged:true},ds:{Systems:3,Judgement:3},notes:'Operational framing. Systems thinker at a basic level. No vision or future-state language.'},
+          q5:{resp:'I\'m good with change as long as I understand why. I\'ve changed a lot over the years. The business looks nothing like it did 10 years ago. But I like to think it through before I move.',reactions:{receptive:true,engaged:true},ds:{Growth:4,Identity:4},notes:'Thoughtful. Deliberate not resistant. Good growth mindset signal.'},
+          q6:{resp:'I do it for my family, obviously. But also — I\'m proud of what we built. I want to prove that you can build a good company and treat people right. Those two things don\'t have to be opposites.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:4},notes:'Strong values alignment with People First philosophy. Emotional and genuine.'}
+        }
+      },
+      {
+        id:'p_demo2',
+        name:'Troy Beltran',
+        role:'Director of Operations',
+        overallNotes:'Troy is sharp and clearly capable but runs on instinct and control. Got slightly defensive on the role description question. Doesn\'t seem to have language around people development yet. Good candidate for Phase 2 focused work. Need to address his tendency to over-function.',
+        answers:{
+          q1:{resp:'I\'m really organized. I track everything. My team knows exactly what\'s expected because I tell them clearly. I also don\'t wait for problems — I go find them.',reactions:{receptive:true},ds:{Identity:3,Relationships:2},notes:'Control-oriented. No mention of empowering others or coaching the team.'},
+          q2:{resp:'I get results. My projects come in on time and on budget more than anyone here. I\'ve never missed a deadline. That\'s why I\'m in this seat.',reactions:{receptive:true},ds:{Identity:3,Judgement:3},notes:'Results-only framing. Slightly dismissive of the relational side of leadership.'},
+          q3:{resp:'I read industry stuff — trade publications, PM blogs. I watch how other operations directors in similar companies handle things. I try to steal good ideas.',reactions:{receptive:true},ds:{Growth:3},notes:'Functional learning only. No personal or leadership development mentioned.'},
+          q4:{resp:'My role is to make sure projects get built right, on time and on budget. I\'m the one who holds everybody accountable when things start to slip.',reactions:{annoyed:true},ds:{Systems:2,Judgement:3},notes:'Accountability-heavy framing. No mention of culture, team development, or systems design. Slightly tense when asked to elaborate.'},
+          q5:{resp:'Change is fine when it makes sense. I don\'t like change for change\'s sake. If you can show me it\'s better, I\'ll change. If you can\'t, I\'m going to push back.',reactions:{receptive:true},ds:{Growth:2,Identity:3},notes:'Conditional openness. Sounds reasonable but "push back" language is worth monitoring in coaching context.'},
+          q6:{resp:'Honestly, I like to win. I like to see a project go from dirt to done and know I was the reason it went smoothly. I\'m proud of the work.',reactions:{receptive:true,engaged:true},ds:{Identity:3,Relationships:2},notes:'Competitive and task-driven. No mention of people or team in the "why."'}
+        }
+      },
+      {
+        id:'p_demo3',
+        name:'Maya Okonkwo',
+        role:'HR & People Manager',
+        overallNotes:'Maya is the most self-aware person in the building. She sees the culture clearly, named real problems without prompting, and showed genuine curiosity throughout. She\'s been trying to push for development programs and hasn\'t had support. High-potential advocate internally. Will be a key ally.',
+        answers:{
+          q1:{resp:'I listen before I act. I try to understand what someone actually needs, not just what they\'re saying. And I take feedback well — I model that because I want my team to see it\'s safe.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:5},notes:'Excellent self-awareness. Growth mindset, relational focus, psychological safety language. This is someone who gets it.'},
+          q2:{resp:'I understand people. I can read a room. I know when someone\'s disengaged before they\'ve said anything. And I care enough to do something about it instead of waiting for it to become a problem.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Judgement:4},notes:'Strong EQ signals. Proactive posture. Concrete and humble.'},
+          q3:{resp:'A lot. I have a book list that never gets shorter. I follow HR thought leaders, I did a SHRM certification on my own time, I listen to management podcasts constantly. I love this stuff.',reactions:{engaged:true},ds:{Growth:5},notes:'Most enthusiastic response of all three interviewees. Intrinsic motivation is high. Knows exactly why she learns.'},
+          q4:{resp:'My role is to create the conditions for people to do their best work. It\'s not about policy or paperwork — that\'s part of it, but it\'s really about building trust and making sure people feel seen.',reactions:{receptive:true,engaged:true},ds:{Systems:4,Judgement:4},notes:'Excellent framing. Systems language, values alignment, and purpose-driven. Best role description of the session.'},
+          q5:{resp:'I love change when it\'s intentional. Change is where growth lives. I get frustrated when change is reactive or when we change things without explaining the why — people shut down. But change itself? I lean in.',reactions:{receptive:true,engaged:true},ds:{Growth:5,Identity:5},notes:'Sophisticated and nuanced. Named a real organizational pain point without prompting. Strong change leadership language.'},
+          q6:{resp:'Because I\'ve been the person who felt invisible at work. And I decided a long time ago that if I ever had any influence over that, I\'d use it. I want people to leave work feeling like they matter.',reactions:{receptive:true,engaged:true},ds:{Identity:5,Relationships:5},notes:'Moving and genuine. Deeply personal and clearly aligned with People First values. This is the kind of leader the OS is built for.'}
+        }
+      }
+    ]
+  };
+
+  state.clients.push(demo);
+  state.activeClientId='demo_client_1';
+  saveState();
+}
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+loadState();
+seedDemoData();
+if(CLIENT_MODE && SURVEY_CID && SURVEY_PID){
+  renderClientSurvey();
+} else {
+  render();
+}
+</script>
+</body>
+</html>
