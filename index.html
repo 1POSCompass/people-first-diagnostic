@@ -675,10 +675,10 @@ function renderPeopleSetupList(client){
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span class="badge ${sl}">${st}</span>
         <button class="btn btn-outline" style="font-size:11px;padding:5px 12px;" onclick="showSurveyLinkModal('${client.id}','${p.id}')">&#9993; Get Survey Link</button>
-        ${hasCR?'':\`<button class="btn btn-primary" style="font-size:11px;padding:5px 12px;" onclick="showImportModal('${client.id}','${p.id}')">&#8595; Import Response</button>\`}
+        ${hasCR?'':('<button class="btn btn-primary" style="font-size:11px;padding:5px 12px;" onclick="showImportModal(\''+client.id+'\',\''+p.id+'\')">↕ Import Response</button>')}
         <button class="btn btn-danger" onclick="removePerson('${p.id}')">Remove</button>
       </div>
-    \`;
+    `;
     container.appendChild(d);
   });
 }
@@ -756,17 +756,16 @@ function renderInterview(mc){
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${_hasCR
           ?'<span style="font-size:12px;background:var(--green-light);color:var(--green);padding:5px 12px;border-radius:20px;font-weight:700;">&#10003; Survey Received</span>'
-          :\`<button class="btn btn-outline" style="font-size:12px;" onclick="showSurveyLinkModal('${client.id}','${ap.id}')">&#9993; Get Survey Link</button>
-             <button class="btn btn-primary" style="font-size:12px;" onclick="showImportModal('${client.id}','${ap.id}')">&#8595; Import Response</button>\`
+          :'<button class="btn btn-outline" style="font-size:12px;" onclick="showSurveyLinkModal(\''+client.id+'\',\''+ap.id+'\')">✉ Get Survey Link</button><button class="btn btn-primary" style="font-size:12px;margin-left:8px;" onclick="showImportModal(\''+client.id+'\',\''+ap.id+'\')">↕ Import Response</button>'
         }
       </div>
     </div>
-    <div style="margin-top:10px;" class="dim-pills">${DIMS.map(d=>\`<span class="dp dp-\${d}">\${d}</span>\`).join('')}</div>
+    <div style="margin-top:10px;" class="dim-pills">${DIMS.map(d=>'<span class="dp dp-'+d+'">'+d+'</span>').join('')}</div>
     ${!_hasCR
       ?'<div style="margin-top:12px;padding:10px 14px;background:var(--cream-dark);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.5;"><strong style="color:var(--text-mid);">Awaiting survey.</strong> Send the link, then import their response code once received. Their self-ratings will appear in each question below.</div>'
       :'<div style="margin-top:12px;padding:10px 14px;background:var(--green-light);border-radius:8px;font-size:12px;color:var(--green);line-height:1.5;"><strong>Self-ratings loaded.</strong> Complete the Round Table section for each question to finalize scoring.</div>'
     }
-  \`;
+  `;
   main.appendChild(ph);
 
   QUESTIONS.forEach((q,idx)=>{
