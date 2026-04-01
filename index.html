@@ -1228,7 +1228,9 @@ function renderClientSurvey(){
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:6px;"><span>1 — Completely Disagree</span><span>5 — Completely Agree</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="rrow_${q.id}">
         ${[1,2,3,4,5].map(n=>`
-          <button id="rb_${q.id}_${n}" onclick="${alreadyDone?'':'selectRating(\"'+q.id+'\",'+n+')'}"
+          <button
+            data-qid="${q.id}" data-rating="${n}"
+            id="rb_${q.id}_${n}"
             style="flex:1;min-width:55px;padding:12px 4px;border-radius:8px;border:2px solid ${n===curR?RC[n]:'var(--border-dark)'};background:${n===curR?RC[n]+'22':'transparent'};color:${n===curR?RC[n]:'var(--text-muted)'};font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:${alreadyDone?'default':'pointer'};transition:all .15s;text-align:center;">
             <div style="font-size:18px;margin-bottom:2px;">${n}</div>
             <div style="font-size:9px;font-weight:500;line-height:1.2;">${RL[n]}</div>
@@ -1247,23 +1249,48 @@ function renderClientSurvey(){
       <button id="_csubmit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:13px;opacity:.6;" disabled onclick="submitClientSurvey()">Rate all statements to submit</button>
     `;
     mc.appendChild(sc);
-    window.selectRating=function(qid,rating){
-      person.answers[qid].resp=rating;
-      [1,2,3,4,5].forEach(n=>{
-        const btn=document.getElementById('rb_'+qid+'_'+n);
-        if(!btn)return;
-        if(n===rating){btn.style.border='2px solid '+RC[n];btn.style.background=RC[n]+'22';btn.style.color=RC[n];}
-        else{btn.style.border='2px solid var(--border-dark)';btn.style.background='transparent';btn.style.color='var(--text-muted)';}
-      });
-      const conf=document.getElementById('rconf_'+qid);
-      if(conf){conf.style.color=RC[rating];conf.textContent='Selected: '+rating+' — '+RL[rating];}
-      const _resps={};QUESTIONS.forEach(q2=>{_resps[q2.id]=person.answers[q2.id].resp;});
-      try{sessionStorage.setItem(_sk,JSON.stringify(_resps));}catch(e){}
-      _updateClientProgress(person);
-    };
     _updateClientProgress(person);
   } else {
     _showResponseCode(person);
+  }
+
+  // ── Delegated click handler for ALL rating buttons ──
+  // This works whether already done or not, defined once after all DOM is ready
+  if(!alreadyDone){
+    mc.addEventListener('click', function(e){
+      const btn = e.target.closest('button[data-qid]');
+      if(!btn) return;
+      const qid = btn.getAttribute('data-qid');
+      const rating = parseInt(btn.getAttribute('data-rating'));
+      if(!qid || !rating) return;
+      // Update person answers
+      person.answers[qid].resp = rating;
+      // Update button styles
+      const RC2 = RATING_COLORS;
+      const RL2 = RATING_LABELS;
+      [1,2,3,4,5].forEach(n=>{
+        const b = document.getElementById('rb_'+qid+'_'+n);
+        if(!b) return;
+        if(n===rating){
+          b.style.border='2px solid '+RC2[n];
+          b.style.background=RC2[n]+'22';
+          b.style.color=RC2[n];
+        } else {
+          b.style.border='2px solid var(--border-dark)';
+          b.style.background='transparent';
+          b.style.color='var(--text-muted)';
+        }
+      });
+      const conf = document.getElementById('rconf_'+qid);
+      if(conf){ conf.style.color=RC2[rating]; conf.textContent='Selected: '+rating+' — '+RL2[rating]; }
+      // Save to sessionStorage
+      const _sk2 = 'pf_survey_'+SURVEY_DATA.pid;
+      const _resps = {};
+      QUESTIONS.forEach(q2=>{ _resps[q2.id] = person.answers[q2.id].resp; });
+      try{ sessionStorage.setItem(_sk2, JSON.stringify(_resps)); }catch(e){}
+      // Update progress
+      _updateClientProgress(person);
+    });
   }
 }
 
@@ -1278,16 +1305,13 @@ function _updateClientProgress(person){
 
 function submitClientSurvey(){
   if(!SURVEY_DATA)return;
+  // Read from sessionStorage (kept up to date by click handler)
   const responses={};
-  QUESTIONS.forEach(q=>{const r=window._surveyPerson&&window._surveyPerson.answers[q.id]&&window._surveyPerson.answers[q.id].resp;responses[q.id]=r||null;});
-  // Also read from sessionStorage as backup
   try{
     const _stored=JSON.parse(sessionStorage.getItem('pf_survey_'+SURVEY_DATA.pid)||'{}');
     QUESTIONS.forEach(q=>{
-      if(!responses[q.id]){
-        const v=_stored[q.id];
-        if(v&&v>=1&&v<=5)responses[q.id]=v;
-      }
+      const v=_stored[q.id];
+      responses[q.id]=(v&&v>=1&&v<=5)?v:null;
     });
   }catch(e){}
   const _sk='pf_survey_'+SURVEY_DATA.pid;
