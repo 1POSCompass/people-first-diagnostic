@@ -201,19 +201,56 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
    CONSTANTS
 ───────────────────────────────────────── */
 const QUESTIONS=[
-  {id:'q1',text:'What habits would you want your team to copy that you do well?',dims:['Identity','Relationships'],hint:'Reveals self-awareness and leadership modeling behavior'},
-  {id:'q2',text:'What behaviors do you believe make you qualified for the role you are in?',dims:['Identity','Judgement'],hint:'Uncovers confidence, self-assessment accuracy, and role clarity'},
-  {id:'q3',text:'What learning do you do on your own?',dims:['Growth'],hint:'Assesses intrinsic motivation and growth orientation'},
-  {id:'q4',text:'How would you best describe what your role is?',dims:['Systems','Judgement'],hint:'Tests role clarity, systems thinking, and organizational awareness'},
-  {id:'q5',text:'Tell me how you feel about change.',dims:['Growth','Identity'],hint:'Reveals adaptability, growth mindset, and identity stability'},
-  {id:'q6',text:'Why do you do what you do?',dims:['Identity','Relationships'],hint:'Uncovers purpose, intrinsic motivation, and values alignment'}
+  {id:'q1',
+   text:'I consistently model the behaviors I expect from the people around me.',
+   note:'If you would not want your team copying it, you do not do it.',
+   dims:['Identity','Relationships'],
+   hint:'Measures behavioral consistency and leadership modeling — the gap between stated expectations and lived example.'},
+  {id:'q2',
+   text:'I have a clear picture of what success looks like in my role — not just the tasks, but the outcomes.',
+   note:'',
+   dims:['Judgement','Systems'],
+   hint:'Assesses role clarity and outcome orientation. Leaders who only see tasks miss the systems they are responsible for shaping.'},
+  {id:'q3',
+   text:'I actively invest in my own learning outside of what my job requires.',
+   note:'Books, podcasts, courses, mentors — something beyond the day-to-day.',
+   dims:['Growth'],
+   hint:'Measures intrinsic growth motivation. Self-directed learners are significantly more coachable and development-ready.'},
+  {id:'q4',
+   text:'I can clearly explain how my role connects to the bigger goals of this organization.',
+   note:'',
+   dims:['Systems','Judgement'],
+   hint:'Tests systems awareness and strategic clarity. Leaders disconnected from organizational purpose create alignment gaps.'},
+  {id:'q5',
+   text:'When change happens, I move toward it rather than wait for things to settle.',
+   note:'',
+   dims:['Growth','Identity'],
+   hint:'Reveals change orientation and identity stability under uncertainty. Resistance here is a leading indicator of engagement risk.'},
+  {id:'q6',
+   text:'I know why I do this work — and that reason goes beyond the title or the paycheck.',
+   note:'',
+   dims:['Identity'],
+   hint:'Surfaces intrinsic motivation and values alignment. Purpose-driven leaders sustain effort through difficulty; extrinsic-only leaders disengage when conditions get hard.'},
+  {id:'q7',
+   text:'I address conflict and difficult conversations directly rather than avoiding them.',
+   note:'When something needs to be said, I say it.',
+   dims:['Relationships','Judgement'],
+   hint:'Measures psychological courage and relational health. Conflict avoidance is one of the most common trust-eroding patterns in leadership teams.'},
+  {id:'q8',
+   text:'When things break down, I look at the system or the decision before I look at the person.',
+   note:'Problems are usually a process failure, not a people failure.',
+   dims:['Judgement','Systems'],
+   hint:'Distinguishes blame-oriented from systems-oriented thinking. This is a direct measure of Judgement maturity under pressure.'}
 ];
+// Rating scale for client survey
+const RATING_LABELS={1:'Completely Disagree',2:'Disagree',3:'Neutral',4:'Agree',5:'Completely Agree'};
+const RATING_COLORS={1:'#c0392b',2:'#e67e22',3:'#c9a800',4:'#27ae60',5:'#1a6b3c'};
 const DIMS=['Identity','Judgement','Relationships','Systems','Growth'];
 const DCOL={Identity:'#6b4fb8',Judgement:'#2e6eaa',Relationships:'#aa4e2e',Systems:'#2e7a4e',Growth:'#c9922a'};
 const LEVELS=[{s:1,l:'Low Awareness'},{s:2,l:'Needs Work'},{s:3,l:'Competent'},{s:4,l:'Qualified'},{s:5,l:'Excels'}];
 const REACTIONS=[{id:'receptive',label:'Receptive'},{id:'offended',label:'Offended'},{id:'annoyed',label:'Seem Annoyed'},{id:'engaged',label:'Seem Engaged'}];
-const TABS=['clients','setup','interview','report'];
-const TAB_LABELS={'clients':'Client Profiles','setup':'Setup','interview':'Interview','report':'Report'};
+const TABS=['clients','setup','roundtable','report'];
+const TAB_LABELS={'clients':'Client Profiles','setup':'Setup','roundtable':'Round Table','report':'Report'};
 const SK='pf_diag_v3';
 
 /* ─────────────────────────────────────────
@@ -240,26 +277,15 @@ function activeClient(){return state.clients.find(c=>c.id===state.activeClientId
 // ── URL MODE DETECTION ──
 const _QS=new URLSearchParams(window.location.search);
 const CLIENT_MODE=_QS.get('mode')==='client';
-// Decode survey payload from URL — all participant info is self-contained in the link
 let SURVEY_DATA=null;
-try{
-  const _sd=_QS.get('s');
-  if(_sd)SURVEY_DATA=JSON.parse(atob(_sd));
-}catch(e){}
+try{const _sd=_QS.get('s');if(_sd)SURVEY_DATA=JSON.parse(atob(_sd));}catch(e){}
 const SURVEY_CID=SURVEY_DATA&&SURVEY_DATA.cid||'';
 const SURVEY_PID=SURVEY_DATA&&SURVEY_DATA.pid||'';
-
 function getSurveyLink(cid,pid){
   const cl=state.clients.find(c=>c.id===cid);
   const pr=cl&&(cl.people||[]).find(p=>p.id===pid);
   if(!cl||!pr)return'';
-  // Encode ALL needed info into the URL so no localStorage lookup is required
-  const payload={
-    cid,pid,
-    name:pr.name,
-    role:pr.role||'',
-    company:cl.name||''
-  };
+  const payload={cid,pid,name:pr.name,role:pr.role||'',company:cl.name||''};
   const base=window.location.href.split('?')[0];
   return base+'?mode=client&s='+btoa(JSON.stringify(payload));
 }
@@ -279,11 +305,42 @@ function personScores(p){
   DIMS.forEach(d=>{tots[d]=0;cnts[d]=0;});
   QUESTIONS.forEach(q=>{
     const a=p.answers&&p.answers[q.id];
-    if(a&&a.ds)q.dims.forEach(d=>{if(a.ds[d]){tots[d]+=a.ds[d];cnts[d]++;}});
+    if(!a)return;
+    // Client self-rating contributes 40% weight per dimension
+    const selfRating=a.resp&&a.resp>=1&&a.resp<=5?a.resp:null;
+    // Consultant roundtable score contributes 60% weight per dimension
+    const rtScore=a.ds?Object.keys(a.ds).length>0?null:null:null;
+    q.dims.forEach(d=>{
+      let score=null;
+      const rt=a.ds&&a.ds[d]?a.ds[d]:null;
+      if(selfRating!==null&&rt!==null){
+        // Both present: blend self-rating (40%) + roundtable score (60%)
+        score=Math.round((selfRating*0.4+rt*0.6)*10)/10;
+      } else if(rt!==null){
+        score=rt;
+      } else if(selfRating!==null){
+        // Self-rating only (survey returned, roundtable not yet done)
+        score=selfRating;
+      }
+      if(score!==null){tots[d]+=score;cnts[d]++;}
+    });
   });
   const r={};
   DIMS.forEach(d=>{r[d]=cnts[d]>0?Math.round((tots[d]/cnts[d])*10)/10:null;});
   return r;
+}
+// Raw self-rating average per dimension (for report display)
+function selfRatingScores(p){
+  const tots={},cnts={};
+  DIMS.forEach(d=>{tots[d]=0;cnts[d]=0;});
+  QUESTIONS.forEach(q=>{
+    const a=p.answers&&p.answers[q.id];
+    const r=a&&a.resp>=1&&a.resp<=5?a.resp:null;
+    if(r!==null)q.dims.forEach(d=>{tots[d]+=r;cnts[d]++;});
+  });
+  const res={};
+  DIMS.forEach(d=>{res[d]=cnts[d]>0?Math.round((tots[d]/cnts[d])*10)/10:null;});
+  return res;
 }
 function overallScore(p){
   const s=personScores(p);const v=Object.values(s).filter(x=>x!==null);
@@ -304,22 +361,24 @@ function clientOverall(client){
 }
 function completionStatus(p){
   if(!p.answers)return'empty';
-  const hasResp=QUESTIONS.every(q=>(p.answers[q.id]||{}).resp&&p.answers[q.id].resp.trim().length>0);
-  const hasScores=QUESTIONS.some(q=>{const ds=(p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
-  if(!hasResp&&!hasScores)return'empty';
-  if(hasResp&&hasScores)return'complete';
+  // Client self-rating: resp is now a number 1-5
+  const hasRatings=QUESTIONS.every(q=>{const r=(p.answers[q.id]||{}).resp;return r&&r>=1&&r<=5;});
+  // Consultant roundtable scores
+  const hasRTScores=QUESTIONS.some(q=>{const ds=(p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
+  if(!hasRatings&&!hasRTScores)return'empty';
+  if(hasRatings&&hasRTScores)return'complete';
   return'partial';
 }
 function clientRespDone(p){
   if(!p.answers)return false;
-  return QUESTIONS.every(q=>(p.answers[q.id]||{}).resp&&p.answers[q.id].resp.trim().length>0);
+  return QUESTIONS.every(q=>{const r=(p.answers[q.id]||{}).resp;return r&&r>=1&&r<=5;});
 }
 
 /* ─────────────────────────────────────────
    SUCCESS % ALGORITHM
 ───────────────────────────────────────── */
-function calcSuccessPct(scores, reactions, notes){
-  // Weighted dimension scores (out of 5)
+function calcSuccessPct(scores, reactions, notes, selfRatings){
+  // Primary: weighted blended dimension scores (out of 5)
   const weights={Identity:.25,Judgement:.2,Relationships:.2,Systems:.15,Growth:.2};
   let weightedSum=0,totalWeight=0;
   DIMS.forEach(d=>{
@@ -327,6 +386,24 @@ function calcSuccessPct(scores, reactions, notes){
   });
   const baseScore=totalWeight>0?weightedSum/totalWeight:0;
   let pct=(baseScore/5)*100;
+
+  // Self-rating consistency bonus/penalty (do self-ratings align with roundtable observations?)
+  // High self-raters who score low in roundtable = overconfidence signal (penalty)
+  // Low self-raters who score high in roundtable = humility signal (small bonus)
+  if(selfRatings){
+    let selfAvg=0,selfCnt=0,rtAvg=0,rtCnt=0;
+    DIMS.forEach(d=>{
+      if(selfRatings[d]!==null){selfAvg+=selfRatings[d];selfCnt++;}
+      if(scores[d]!==null){rtAvg+=scores[d];rtCnt++;}
+    });
+    if(selfCnt>0&&rtCnt>0){
+      selfAvg/=selfCnt;rtAvg/=rtCnt;
+      const gap=selfAvg-rtAvg;
+      if(gap>1.5)pct-=8;       // Significantly overestimates self — overconfidence flag
+      else if(gap>0.8)pct-=4;  // Moderate overestimate
+      else if(gap<-0.8)pct+=4; // Humble self-rater, scores well in roundtable
+    }
+  }
 
   // Reaction bonuses/penalties
   let rxBonus=0;
@@ -338,7 +415,7 @@ function calcSuccessPct(scores, reactions, notes){
   });
   pct=Math.min(98,Math.max(5,pct+rxBonus));
 
-  // Notes sentiment boost (simple keyword scan)
+  // Notes sentiment
   const allNotes=(notes||'').toLowerCase();
   const positiveWords=['growth','open','eager','curious','committed','honest','accountable','reflective','coachable','motivated','excited','humble','ready','clear','aligned'];
   const negativeWords=['defensive','resistant','blame','excuses','closed','stubborn','disengaged','disinterested','dismissive','combative','arrogant','deflect'];
@@ -351,21 +428,29 @@ function calcSuccessPct(scores, reactions, notes){
 
 function personSuccessPct(p){
   const scores=personScores(p);
+  const srScores=selfRatingScores(p);
   const rxTotals={receptive:0,offended:0,annoyed:0,engaged:0};
   let allNotes=p.overallNotes||'';
   QUESTIONS.forEach(q=>{
     const a=p.answers&&p.answers[q.id];
     if(a){
       REACTIONS.forEach(r=>{if(a.reactions&&a.reactions[r.id])rxTotals[r.id]++;});
-      if(a.resp)allNotes+=' '+a.resp;
       if(a.notes)allNotes+=' '+a.notes;
     }
   });
-  return calcSuccessPct(scores,rxTotals,allNotes);
+  return calcSuccessPct(scores,rxTotals,allNotes,srScores);
 }
 
 function clientSuccessPct(client){
   const scores=clientScores(client);
+  // Aggregate self-ratings across all people
+  const allSR={};DIMS.forEach(d=>{allSR[d]=null;});
+  let srTots={},srCnts={};DIMS.forEach(d=>{srTots[d]=0;srCnts[d]=0;});
+  (client.people||[]).forEach(p=>{
+    const sr=selfRatingScores(p);
+    DIMS.forEach(d=>{if(sr[d]!==null){srTots[d]+=sr[d];srCnts[d]++;}});
+  });
+  DIMS.forEach(d=>{allSR[d]=srCnts[d]>0?Math.round((srTots[d]/srCnts[d])*10)/10:null;});
   const rxTotals={receptive:0,offended:0,annoyed:0,engaged:0};
   let allNotes=client.notes||'';
   (client.people||[]).forEach(p=>{
@@ -374,12 +459,11 @@ function clientSuccessPct(client){
       const a=p.answers&&p.answers[q.id];
       if(a){
         REACTIONS.forEach(r=>{if(a.reactions&&a.reactions[r.id])rxTotals[r.id]++;});
-        if(a.resp)allNotes+=' '+a.resp;
         if(a.notes)allNotes+=' '+a.notes;
       }
     });
   });
-  return calcSuccessPct(scores,rxTotals,allNotes);
+  return calcSuccessPct(scores,rxTotals,allNotes,allSR);
 }
 
 function successLabel(pct){
@@ -411,7 +495,7 @@ function render(){
   mc.innerHTML='';
   if(state.activeTab==='clients')renderClients(mc);
   else if(state.activeTab==='setup')renderSetup(mc);
-  else if(state.activeTab==='interview')renderInterview(mc);
+  else if(state.activeTab==='roundtable')renderInterview(mc);
   else if(state.activeTab==='report')renderReport(mc);
 }
 
@@ -564,7 +648,7 @@ function renderSetup(mc){
 
   if((client.people||[]).length>0){
     const go=document.createElement('div');go.style.cssText='text-align:center;margin-top:4px;';
-    go.innerHTML=`<button class="btn btn-gold" onclick="window.gotoTab('interview')">Begin Interviews →</button>`;
+    go.innerHTML=`<button class="btn btn-gold" onclick="window.gotoTab('roundtable')">Begin Interviews →</button>`;
     mc.appendChild(go);
   }
 }
@@ -575,11 +659,11 @@ function renderPeopleSetupList(client){
   if(!(client.people||[]).length){container.innerHTML='<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No participants yet.</div>';return;}
   container.innerHTML='';
   client.people.forEach(p=>{
-    const hasCResp=clientRespDone(p);
-    const hasScores=QUESTIONS.some(q=>{const ds=(p.answers&&p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
+    const hasCR=clientRespDone(p);
+    const hasSc=QUESTIONS.some(q=>{const ds=(p.answers&&p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
     let sl,st;
-    if(hasCResp&&hasScores){sl='badge-complete';st='Complete';}
-    else if(hasCResp&&!hasScores){sl='badge-partial';st='Awaiting Roundtable';}
+    if(hasCR&&hasSc){sl='badge-complete';st='Complete';}
+    else if(hasCR&&!hasSc){sl='badge-partial';st='Awaiting Round Table';}
     else{sl='badge-empty';st='Not Started';}
     const d=document.createElement('div');
     d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--cream);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;flex-wrap:wrap;gap:8px;';
@@ -591,10 +675,10 @@ function renderPeopleSetupList(client){
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span class="badge ${sl}">${st}</span>
         <button class="btn btn-outline" style="font-size:11px;padding:5px 12px;" onclick="showSurveyLinkModal('${client.id}','${p.id}')">&#9993; Get Survey Link</button>
-        ${hasCResp?'':`<button class="btn btn-primary" style="font-size:11px;padding:5px 12px;" onclick="showImportModal('${client.id}','${p.id}')">&#8595; Import Response</button>`}
+        ${hasCR?'':\`<button class="btn btn-primary" style="font-size:11px;padding:5px 12px;" onclick="showImportModal('${client.id}','${p.id}')">&#8595; Import Response</button>\`}
         <button class="btn btn-danger" onclick="removePerson('${p.id}')">Remove</button>
       </div>
-    `;
+    \`;
     container.appendChild(d);
   });
 }
@@ -621,6 +705,7 @@ window.removePerson=function(id){
   saveState();render();
 };
 window.gotoTab=function(tab){state.activeTab=tab;render();};
+window.gotoRoundtable=function(){state.activeTab='roundtable';render();};
 
 /* ─────────────────────────────────────────
    INTERVIEW TAB
@@ -639,16 +724,16 @@ function renderInterview(mc){
   const sb=document.createElement('div');
   sb.innerHTML=`<div class="section-label" style="margin-bottom:10px;">${esc(client.name||'Company')} — Participants</div>`;
   client.people.forEach(p=>{
-    const hasCR=clientRespDone(p);
-    const hasSc=QUESTIONS.some(q=>{const ds=(p.answers&&p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
-    let isl,ist;
-    if(hasCR&&hasSc){isl='badge-complete';ist='Complete';}
-    else if(hasCR&&!hasSc){isl='badge-partial';ist='Awaiting Roundtable';}
-    else{isl='badge-empty';ist='Not Started';}
+    const hasCRi=clientRespDone(p);
+    const hasRTi=QUESTIONS.some(q=>{const ds=(p.answers&&p.answers[q.id]||{}).ds||{};return Object.values(ds).some(v=>v);});
+    let sli,sti;
+    if(hasCRi&&hasRTi){sli='badge-complete';sti='Complete';}
+    else if(hasCRi&&!hasRTi){sli='badge-partial';sti='Awaiting Scoring';}
+    else{sli='badge-empty';sti='Not Started';}
     const pc=document.createElement('div');
     pc.className='person-card'+(client.activePerson===p.id?' active':'');
     pc.onclick=()=>{client.activePerson=p.id;render();};
-    pc.innerHTML=`<div><div class="pname">${p.name}</div><div class="prole">${p.role||'—'}</div></div><span class="badge ${isl}">${ist}</span>`;
+    pc.innerHTML=`<div><div class="pname">${p.name}</div><div class="prole">${p.role||'—'}</div></div><span class="badge ${sli}">${sti}</span>`;
     sb.appendChild(pc);
   });
   layout.appendChild(sb);
@@ -670,43 +755,48 @@ function renderInterview(mc){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${_hasCR
-          ? '<span style="font-size:12px;background:var(--green-light);color:var(--green);padding:5px 12px;border-radius:20px;font-weight:700;">&#10003; Survey Received</span>'
-          : `<button class="btn btn-outline" style="font-size:12px;" onclick="showSurveyLinkModal('${client.id}','${ap.id}')">&#9993; Get Survey Link</button>
-             <button class="btn btn-primary" style="font-size:12px;" onclick="showImportModal('${client.id}','${ap.id}')">&#8595; Import Response</button>`
+          ?'<span style="font-size:12px;background:var(--green-light);color:var(--green);padding:5px 12px;border-radius:20px;font-weight:700;">&#10003; Survey Received</span>'
+          :\`<button class="btn btn-outline" style="font-size:12px;" onclick="showSurveyLinkModal('${client.id}','${ap.id}')">&#9993; Get Survey Link</button>
+             <button class="btn btn-primary" style="font-size:12px;" onclick="showImportModal('${client.id}','${ap.id}')">&#8595; Import Response</button>\`
         }
       </div>
     </div>
-    <div style="margin-top:10px;" class="dim-pills">${DIMS.map(d=>`<span class="dp dp-${d}">${d}</span>`).join('')}</div>
-    ${!_hasCR?`<div style="margin-top:12px;padding:10px 14px;background:var(--cream-dark);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.5;">
-      <strong style="color:var(--text-mid);">Awaiting survey.</strong> Send the link to ${esc(ap.name)}, then paste their response code using Import Response once they send it back.
-    </div>`:`<div style="margin-top:12px;padding:10px 14px;background:var(--green-light);border-radius:8px;font-size:12px;color:var(--green);line-height:1.5;">
-      <strong>Survey responses loaded.</strong> Scroll through the questions below. Complete the Roundtable section for each one after your group session.
-    </div>`}
-  `;
+    <div style="margin-top:10px;" class="dim-pills">${DIMS.map(d=>\`<span class="dp dp-\${d}">\${d}</span>\`).join('')}</div>
+    ${!_hasCR
+      ?'<div style="margin-top:12px;padding:10px 14px;background:var(--cream-dark);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.5;"><strong style="color:var(--text-mid);">Awaiting survey.</strong> Send the link, then import their response code once received. Their self-ratings will appear in each question below.</div>'
+      :'<div style="margin-top:12px;padding:10px 14px;background:var(--green-light);border-radius:8px;font-size:12px;color:var(--green);line-height:1.5;"><strong>Self-ratings loaded.</strong> Complete the Round Table section for each question to finalize scoring.</div>'
+    }
+  \`;
   main.appendChild(ph);
 
   QUESTIONS.forEach((q,idx)=>{
-    if(!ap.answers[q.id])ap.answers[q.id]={resp:'',reactions:{},ds:{},notes:''};
+    if(!ap.answers[q.id])ap.answers[q.id]={resp:null,reactions:{},ds:{},notes:''};
     const ans=ap.answers[q.id];
+    const selfRating=ans.resp&&ans.resp>=1&&ans.resp<=5?ans.resp:null;
     const block=document.createElement('div');block.className='q-block';
     block.innerHTML=`
       <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
         <div class="q-num">${idx+1}</div>
         <div style="flex:1;">
           <div class="q-text">${q.text}</div>
-          <div class="dim-pills">${q.dims.map(d=>`<span class="dp dp-${d}">${d}</span>`).join('')}</div>
+          ${q.note?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;margin-top:4px;">${q.note}</div>`:''}
+          <div class="dim-pills" style="margin-top:6px;">${q.dims.map(d=>`<span class="dp dp-${d}">${d}</span>`).join('')}</div>
           <div class="q-hint">${q.hint}</div>
         </div>
       </div>
-      <div class="form-group" style="margin-top:8px;">
+      <div style="margin-bottom:14px;">
         <label style="display:flex;align-items:center;gap:8px;">
-          Client Response
-          ${(ans.resp||'').trim()?'<span style="font-size:10px;font-weight:700;background:var(--green-light);color:var(--green);padding:2px 9px;border-radius:10px;text-transform:none;letter-spacing:0;">&#10003; Received</span>':'<span style="font-size:10px;background:var(--cream-dark);color:var(--text-muted);padding:2px 9px;border-radius:10px;text-transform:none;letter-spacing:0;">Awaiting response</span>'}
+          Client Self-Rating
+          ${selfRating?`<span style="font-size:10px;font-weight:700;background:var(--green-light);color:var(--green);padding:2px 9px;border-radius:10px;text-transform:none;letter-spacing:0;">&#10003; Rated ${selfRating}/5 — ${RATING_LABELS[selfRating]}</span>`:'<span style="font-size:10px;background:var(--cream-dark);color:var(--text-muted);padding:2px 9px;border-radius:10px;text-transform:none;letter-spacing:0;">Awaiting survey</span>'}
         </label>
-        <textarea id="resp_${q.id}" placeholder="Client response will appear here after you import their code…" style="${(ans.resp||'').trim()?'background:var(--green-light);border-color:#b8dfc9;':''}">${esc(ans.resp||'')}</textarea>
+        ${selfRating?`
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+            ${[1,2,3,4,5].map(n=>`<div style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;border:2px solid ${n===selfRating?RATING_COLORS[n]:'var(--border)'};background:${n===selfRating?RATING_COLORS[n]+'22':'transparent'};color:${n===selfRating?RATING_COLORS[n]:'var(--text-muted)'};">${n} — ${RATING_LABELS[n]}</div>`).join('')}
+          </div>
+        `:'<div style="background:var(--cream-dark);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text-muted);margin-top:6px;">Client self-rating will appear here after survey is imported.</div>'}
       </div>
-      <div style="margin-top:14px;padding:16px;background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:10px;">&#128274; Roundtable — Consultant Only</div>
+      <div style="padding:16px;background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:10px;">&#128274; Round Table — Consultant Only</div>
         <div class="reaction-group" style="margin-top:0;padding-top:0;border-top:none;">
           <span class="rlabel">Reaction:</span>
           ${REACTIONS.map(r=>`<span class="rchip${ans.reactions&&ans.reactions[r.id]?' sel-'+r.id:''}" id="chip_${q.id}_${r.id}" onclick="toggleR('${ap.id}','${q.id}','${r.id}')">${r.label}</span>`).join('')}
@@ -722,7 +812,7 @@ function renderInterview(mc){
         </div>
         <div class="form-group" style="margin-top:12px;margin-bottom:0;">
           <label style="color:var(--gold);">Private Notes (not in report)</label>
-          <textarea id="notes_${q.id}" placeholder="Observations, body language, nonverbal cues…">${esc(ans.notes||'')}</textarea>
+          <textarea id="notes_${q.id}" placeholder="Observations, nonverbal cues, follow-up thoughts…">${esc(ans.notes||'')}</textarea>
         </div>
       </div>
     `;
@@ -730,7 +820,7 @@ function renderInterview(mc){
   });
 
   const finalN=document.createElement('div');finalN.className='card';
-  finalN.innerHTML=`<div class="card-title">Overall Interview Notes</div><textarea id="overall-notes" placeholder="Overall impressions, patterns, standout moments…" style="min-height:100px;">${esc(ap.overallNotes||'')}</textarea>`;
+  finalN.innerHTML=`<div class="card-title">Overall Round Table Notes</div><textarea id="overall-notes" placeholder="Overall impressions, patterns, standout moments from the group session…" style="min-height:100px;">${esc(ap.overallNotes||'')}</textarea>`;
   main.appendChild(finalN);
 
   layout.appendChild(main);
@@ -738,9 +828,7 @@ function renderInterview(mc){
 
   setTimeout(()=>{
     QUESTIONS.forEach(q=>{
-      const re=document.getElementById('resp_'+q.id);
       const ne=document.getElementById('notes_'+q.id);
-      if(re)re.addEventListener('input',e=>{ap.answers[q.id].resp=e.target.value;saveState();});
       if(ne)ne.addEventListener('input',e=>{ap.answers[q.id].notes=e.target.value;saveState();});
     });
     const oe=document.getElementById('overall-notes');
@@ -783,7 +871,7 @@ window.setScore=function(pid,qid,dim,score){
 function renderReport(mc){
   const client=activeClient();
   if(!client){mc.innerHTML='<div class="card empty-state"><h3>No profile selected</h3><p>Open a client profile first.</p></div>';return;}
-  const hasData=(client.people||[]).some(p=>overallScore(p)!==null);
+  const hasData=(client.people||[]).some(p=>overallScore(p)!==null||clientRespDone(p));
 
   const hdr=document.createElement('div');
   hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;';
@@ -798,7 +886,7 @@ function renderReport(mc){
 
   if(!hasData){
     const e=document.createElement('div');e.className='card empty-state';
-    e.innerHTML='<h3>No scores yet</h3><p>Complete interviews and rate responses to generate the report.</p>';
+    e.innerHTML='<h3>No data yet</h3><p>Send the survey to participants and complete the Round Table session to generate the report.</p>';
     mc.appendChild(e);return;
   }
 
@@ -860,7 +948,20 @@ function renderReport(mc){
     const rxAll={receptive:0,offended:0,annoyed:0,engaged:0};
     QUESTIONS.forEach(q=>{const a=p.answers&&p.answers[q.id];if(a&&a.reactions)REACTIONS.forEach(r=>{if(a.reactions[r.id])rxAll[r.id]++;});});
 
+    const srsc=selfRatingScores(p);
     const pc=document.createElement('div');pc.className='person-report-card';
+    // Self-rating average and roundtable average for gap analysis
+    const srVals=Object.values(srsc).filter(v=>v!==null);
+    const srAvg=srVals.length?Math.round((srVals.reduce((a,b)=>a+b,0)/srVals.length)*10)/10:null;
+    const rtVals=DIMS.map(d=>{
+      const rtTots=[];
+      QUESTIONS.forEach(q=>{if(q.dims.includes(d)){const ds=(p.answers&&p.answers[q.id]||{}).ds||{};if(ds[d])rtTots.push(ds[d]);}});
+      return rtTots.length?Math.round((rtTots.reduce((a,b)=>a+b,0)/rtTots.length)*10)/10:null;
+    }).filter(v=>v!==null);
+    const rtAvg=rtVals.length?Math.round((rtVals.reduce((a,b)=>a+b,0)/rtVals.length)*10)/10:null;
+    const gap=srAvg&&rtAvg?Math.round((srAvg-rtAvg)*10)/10:null;
+    const gapLabel=gap===null?'':(gap>1.5?'Significant Overestimate':(gap>0.5?'Slight Overestimate':(gap<-0.5?'Humble Self-Rater':'Strong Alignment')));
+    const gapColor=gap===null?'':(gap>1.5?'#c0392b':(gap>0.5?'#e67e22':(gap<-0.5?'#2a7a4f':'#2e6eaa')));
     pc.innerHTML=`
       <div class="prh">
         <div style="display:flex;align-items:center;gap:12px;">
@@ -872,20 +973,36 @@ function renderReport(mc){
         </div>
         <div style="text-align:right;">
           <div style="font-size:28px;font-weight:700;color:var(--navy);">${os?os.toFixed(1):'—'}</div>
-          <div style="font-size:11px;color:var(--text-muted);">Overall / 5</div>
+          <div style="font-size:11px;color:var(--text-muted);">Blended Score / 5</div>
           ${os?`<span class="lvl ${lv.cls}" style="margin-top:4px;display:inline-block;">${lv.label}</span>`:''}
         </div>
       </div>
+      ${gap!==null?`<div style="margin-bottom:12px;padding:10px 14px;background:${gapColor}18;border:1px solid ${gapColor}44;border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:12px;color:var(--text-mid);">
+          <strong>Self-Rating Avg:</strong> ${srAvg}/5 &nbsp;·&nbsp; <strong>Round Table Avg:</strong> ${rtAvg}/5 &nbsp;·&nbsp; <strong>Gap:</strong> <span style="color:${gapColor};font-weight:700;">${gap>0?'+':''}${gap}</span>
+        </div>
+        <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;background:${gapColor}22;color:${gapColor};">${gapLabel}</span>
+      </div>`:''}
       ${DIMS.map(d=>{
         const s=sc[d];const pct=s?(s/5*100):0;const lvi=s?lvlInfo(Math.round(s)):null;
-        return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-          <span style="font-size:12px;font-weight:600;color:${DCOL[d]};width:100px;flex-shrink:0;">${d}</span>
-          <div style="flex:1;height:16px;background:var(--cream-dark);border-radius:3px;overflow:hidden;">
-            <div style="width:${pct}%;height:100%;background:${DCOL[d]};border-radius:3px;display:flex;align-items:center;padding-left:6px;">
-              ${pct>18?`<span style="font-size:9px;font-weight:700;color:white;">${lvi?lvi.label:''}</span>`:''}
+        const sr=srsc[d];const srPct=sr?(sr/5*100):0;
+        return`<div style="margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px;">
+            <span style="font-size:12px;font-weight:600;color:${DCOL[d]};width:100px;flex-shrink:0;">${d}</span>
+            <div style="flex:1;height:16px;background:var(--cream-dark);border-radius:3px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${DCOL[d]};border-radius:3px;display:flex;align-items:center;padding-left:6px;">
+                ${pct>18?`<span style="font-size:9px;font-weight:700;color:white;">${lvi?lvi.label:''}</span>`:''}
+              </div>
             </div>
+            <span style="font-size:12px;font-weight:700;color:${DCOL[d]};width:45px;text-align:right;">${s?s.toFixed(1):'—'}</span>
           </div>
-          <span style="font-size:12px;font-weight:700;color:${DCOL[d]};width:45px;text-align:right;">${s?s.toFixed(1):'—'}</span>
+          ${sr!==null&&s!==null?`<div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:10px;color:var(--text-muted);width:100px;flex-shrink:0;">Self-rated</span>
+            <div style="flex:1;height:6px;background:var(--cream-dark);border-radius:2px;overflow:hidden;">
+              <div style="width:${srPct}%;height:100%;background:${DCOL[d]}66;border-radius:2px;"></div>
+            </div>
+            <span style="font-size:10px;color:var(--text-muted);width:45px;text-align:right;">${sr.toFixed(1)}</span>
+          </div>`:''}
         </div>`;
       }).join('')}
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
@@ -941,9 +1058,6 @@ function genInsight(scores){
 }
 
 
-/* ─────────────────────────────────────────
-   SURVEY LINK MODAL
-───────────────────────────────────────── */
 function showSurveyLinkModal(cid,pid){
   const link=getSurveyLink(cid,pid);
   const cl=state.clients.find(c=>c.id===cid);
@@ -953,31 +1067,26 @@ function showSurveyLinkModal(cid,pid){
   ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
   ov.innerHTML=`<div style="background:white;border-radius:12px;padding:32px;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);margin-bottom:6px;">Survey Link — ${esc(pr.name)}</div>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6;">Send this link to ${esc(pr.name)}. They will see a clean survey with only the 6 questions — no scoring, no consultant fields, nothing internal. When they submit, they receive a short <strong>response code</strong> to email back to you.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6;">Send this link to ${esc(pr.name)}. They will see a clean rating survey with the 8 statements — no scoring, no consultant fields. When they submit, they receive a response code to email back to you.</p>
     <div id="_sld" style="background:var(--cream-dark);border:1px solid var(--border-dark);border-radius:8px;padding:12px 14px;font-size:11px;font-family:monospace;word-break:break-all;line-height:1.6;color:var(--text);margin-bottom:14px;"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
       <button id="_slcopy" style="background:var(--navy);color:white;border:none;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Copy Link</button>
       <button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;color:var(--text-mid);border:1px solid var(--border-dark);padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Close</button>
       <span id="_slcc" style="font-size:12px;color:var(--green);opacity:0;transition:opacity .3s;">Copied!</span>
     </div>
-    <div style="margin-top:16px;padding:10px 14px;background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;font-size:12px;color:var(--text-mid);line-height:1.6;">
-      <strong>Workflow:</strong> Client opens link &#8594; fills out 6 questions &#8594; submits and receives a code &#8594; emails code to you &#8594; you click <em>Import Response</em> and paste it in &#8594; their answers populate the Interview tab.
+    <div style="margin-top:14px;padding:10px 14px;background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;font-size:12px;color:var(--text-mid);line-height:1.6;">
+      <strong>Workflow:</strong> Client opens link &#8594; rates all 8 statements &#8594; submits and gets a code &#8594; emails code to you &#8594; you import it &#8594; their ratings load into the Round Table tab.
     </div>
   </div>`;
   document.body.appendChild(ov);
   document.getElementById('_sld').textContent=link;
   document.getElementById('_slcopy').onclick=function(){
     const fn=()=>{const el=document.getElementById('_slcc');if(el){el.style.opacity=1;setTimeout(()=>el.style.opacity=0,2500);}};
-    navigator.clipboard.writeText(link).then(fn).catch(()=>{
-      const t=document.createElement('textarea');t.value=link;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();
-    });
+    navigator.clipboard.writeText(link).then(fn).catch(()=>{const t=document.createElement('textarea');t.value=link;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();});
   };
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
 }
 
-/* ─────────────────────────────────────────
-   IMPORT RESPONSE MODAL
-───────────────────────────────────────── */
 function showImportModal(cid,pid){
   const cl=state.clients.find(c=>c.id===cid);
   const pr=cl&&(cl.people||[]).find(p=>p.id===pid);
@@ -986,7 +1095,7 @@ function showImportModal(cid,pid){
   ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
   ov.innerHTML=`<div style="background:white;border-radius:12px;padding:32px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);margin-bottom:6px;">Import Response — ${esc(pr.name)}</div>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Paste the response code ${esc(pr.name)} emailed back to you. Their written answers will load into the Interview tab so you can add your roundtable observations and OS scores.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Paste the response code ${esc(pr.name)} emailed back to you. Their 8 self-ratings will load into the Round Table tab.</p>
     <textarea id="_ici" placeholder="Paste response code here…" style="width:100%;padding:12px;border:1px solid var(--border-dark);border-radius:8px;font-family:monospace;font-size:11px;min-height:90px;background:var(--cream);resize:vertical;margin-bottom:10px;"></textarea>
     <div id="_ierr" style="font-size:12px;color:var(--red);margin-bottom:10px;display:none;"></div>
     <div style="display:flex;gap:10px;">
@@ -1012,21 +1121,22 @@ function processImport(cid,pid){
     if(!pr)throw new Error();
     if(!pr.answers)pr.answers={};
     QUESTIONS.forEach(q=>{
-      if(data.responses[q.id]){
-        if(!pr.answers[q.id])pr.answers[q.id]={resp:'',reactions:{},ds:{},notes:''};
-        pr.answers[q.id].resp=data.responses[q.id];
+      const r=data.responses[q.id];
+      if(r!==undefined&&r!==null){
+        if(!pr.answers[q.id])pr.answers[q.id]={resp:null,reactions:{},ds:{},notes:''};
+        pr.answers[q.id].resp=(typeof r==='number'&&r>=1&&r<=5)?r:(typeof r==='string'&&!isNaN(r)&&r!=='')?parseInt(r):null;
       }
     });
     pr.surveyImportedAt=data.submittedAt||new Date().toISOString();
     saveState();
     document.querySelector('div[style*="position:fixed"]').remove();
-    state.activeTab='interview';
+    state.activeTab='roundtable';
     cl.activePerson=pid;
     render();
     setTimeout(()=>{
       const b=document.createElement('div');
       b.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.2);white-space:nowrap;';
-      b.textContent='Responses imported. Add roundtable observations and OS scores to complete.';
+      b.textContent='Self-ratings imported. Add Round Table observations and OS scores to complete.';
       document.body.appendChild(b);
       setTimeout(()=>b.remove(),4000);
     },100);
@@ -1036,12 +1146,7 @@ function processImport(cid,pid){
   }
 }
 
-/* ─────────────────────────────────────────
-   CLIENT SURVEY RENDERER
-───────────────────────────────────────── */
 function renderClientSurvey(){
-  // All participant info comes from the URL — no localStorage lookup needed
-  // This means the survey works on any device, any browser
   if(!SURVEY_DATA||!SURVEY_DATA.name){
     document.querySelector('.app-header').innerHTML=`
       <div>
@@ -1059,27 +1164,17 @@ function renderClientSurvey(){
     </div>`;
     return;
   }
-
-  // Build a lightweight local person object from URL data
-  // Responses are stored in sessionStorage keyed by pid so they persist through the session
   const _sk='pf_survey_'+SURVEY_DATA.pid;
   let _savedResps={};
   try{const _sr=sessionStorage.getItem(_sk);if(_sr)_savedResps=JSON.parse(_sr);}catch(e){}
-
-  const person={
-    name:SURVEY_DATA.name,
-    role:SURVEY_DATA.role||'',
-    answers:{}
-  };
-  // Pre-populate answers with any saved session responses
-  QUESTIONS.forEach(q=>{
-    person.answers[q.id]={resp:_savedResps[q.id]||'',reactions:{},ds:{},notes:''};
-  });
-
+  const getRating=k=>{const v=_savedResps[k];return(typeof v==='number'&&v>=1&&v<=5)?v:(typeof v==='string'&&!isNaN(v)&&v!=='')?parseInt(v):null;};
+  const person={name:SURVEY_DATA.name,role:SURVEY_DATA.role||'',answers:{}};
+  QUESTIONS.forEach(q=>{person.answers[q.id]={resp:getRating(q.id),reactions:{},ds:{},notes:''};});
   const client={name:SURVEY_DATA.company||''};
-  const alreadyDone=QUESTIONS.every(q=>(person.answers[q.id].resp||'').trim().length>0)&&_savedResps._submitted;
+  const alreadyDone=QUESTIONS.every(q=>{const r=person.answers[q.id].resp;return r&&r>=1&&r<=5;})&&_savedResps._submitted;
+  const RC=RATING_COLORS;
+  const RL=RATING_LABELS;
 
-  // Replace header
   document.querySelector('.app-header').innerHTML=`
     <div>
       <h1 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:white;">Leadership Assessment</h1>
@@ -1088,19 +1183,15 @@ function renderClientSurvey(){
     <span class="badge-1p">1P</span>
   `;
   document.getElementById('nav-tabs').style.display='none';
-
   const mc=document.getElementById('main-content');
   mc.style.cssText='flex:1;overflow-y:auto;padding:32px;max-width:700px;margin:0 auto;width:100%;';
   mc.innerHTML='';
 
-  // Welcome card
-  const wc=document.createElement('div');
-  wc.className='card';
-  wc.style.borderTop='4px solid var(--gold)';
+  const wc=document.createElement('div');wc.className='card';wc.style.borderTop='4px solid var(--gold)';
   wc.innerHTML=`
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy);margin-bottom:10px;">Leadership Assessment</div>
-    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:8px;">Thank you for taking the time to complete this. Your honest responses make this assessment significantly more valuable — there are no right or wrong answers.</p>
-    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:16px;">Write in your own words. Your responses are confidential and will be reviewed by Kyle McCalla at People First Consulting alongside observations from your group roundtable.</p>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:8px;">Please rate each statement honestly based on how accurately it describes you right now — not how you aspire to be, but how you actually show up.</p>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:16px;">1 = Completely Disagree &nbsp;·&nbsp; 5 = Completely Agree. There are no right or wrong answers.</p>
     <div style="background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
       <div style="width:42px;height:42px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">${initials(person.name)}</div>
       <div>
@@ -1112,11 +1203,10 @@ function renderClientSurvey(){
   `;
   mc.appendChild(wc);
 
-  // Progress
   const pw=document.createElement('div');
   pw.innerHTML=`
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:5px;">
-      <span id="_cprog">0 of ${QUESTIONS.length} answered</span>
+      <span id="_cprog">0 of ${QUESTIONS.length} rated</span>
       <span style="font-weight:600;color:var(--navy);">${esc(client.name||'')}</span>
     </div>
     <div style="height:4px;background:var(--cream-dark);border-radius:2px;margin-bottom:24px;overflow:hidden;">
@@ -1125,86 +1215,87 @@ function renderClientSurvey(){
   `;
   mc.appendChild(pw);
 
-  // Questions — client only sees text + "Your Response" textarea
   QUESTIONS.forEach((q,idx)=>{
-    if(!person.answers[q.id])person.answers[q.id]={resp:'',reactions:{},ds:{},notes:''};
-    const ans=person.answers[q.id];
-    const card=document.createElement('div');
-    card.className='q-block';
+    const curR=person.answers[q.id].resp;
+    const card=document.createElement('div');card.className='q-block';card.id='qcard_'+q.id;
     card.innerHTML=`
       <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;">
         <div class="q-num">${idx+1}</div>
         <div>
           <div class="q-text">${q.text}</div>
-          <div class="q-hint" style="margin-top:5px;">${q.hint}</div>
+          ${q.note?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;margin-top:5px;">${q.note}</div>`:''}
         </div>
       </div>
-      <label>Your Response</label>
-      <textarea id="_cr_${q.id}" placeholder="Write your honest response here…" ${alreadyDone?'readonly style="background:var(--cream-dark);color:var(--text-muted);"':''}>${esc(ans.resp||'')}</textarea>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:6px;"><span>1 — Completely Disagree</span><span>5 — Completely Agree</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="rrow_${q.id}">
+        ${[1,2,3,4,5].map(n=>`
+          <button id="rb_${q.id}_${n}" onclick="${alreadyDone?'':'selectRating(\"'+q.id+'\",'+n+')'}"
+            style="flex:1;min-width:55px;padding:12px 4px;border-radius:8px;border:2px solid ${n===curR?RC[n]:'var(--border-dark)'};background:${n===curR?RC[n]+'22':'transparent'};color:${n===curR?RC[n]:'var(--text-muted)'};font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:${alreadyDone?'default':'pointer'};transition:all .15s;text-align:center;">
+            <div style="font-size:18px;margin-bottom:2px;">${n}</div>
+            <div style="font-size:9px;font-weight:500;line-height:1.2;">${RL[n]}</div>
+          </button>`).join('')}
+      </div>
+      <div id="rconf_${q.id}" style="margin-top:8px;font-size:12px;font-weight:600;color:${curR?RC[curR]:'var(--text-muted)'};">${curR?('Selected: '+curR+' — '+RL[curR]):'No selection yet'}</div>
     `;
     mc.appendChild(card);
   });
 
   if(!alreadyDone){
-    const sc=document.createElement('div');
-    sc.className='card';
+    const sc=document.createElement('div');sc.className='card';
     sc.innerHTML=`
       <div style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--navy);margin-bottom:8px;">Ready to submit?</div>
-      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;">Answer all six questions, then submit. You will receive a short <strong>response code</strong> — please copy it and email it back to Kyle McCalla at <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a>. That completes your part of the assessment.</p>
-      <button id="_csubmit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:13px;opacity:.6;" disabled onclick="submitClientSurvey('${SURVEY_CID}','${SURVEY_PID}')">Answer all questions to submit</button>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;">Rate all 8 statements, then submit. You will receive a short response code — please copy it and email it to <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a> to complete your part of the assessment.</p>
+      <button id="_csubmit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:13px;opacity:.6;" disabled onclick="submitClientSurvey()">Rate all statements to submit</button>
     `;
     mc.appendChild(sc);
-    setTimeout(()=>{
-      QUESTIONS.forEach(q=>{
-        const ta=document.getElementById('_cr_'+q.id);
-        if(ta)ta.addEventListener('input',()=>{
-          person.answers[q.id].resp=ta.value;
-          // Save to sessionStorage so progress persists if they scroll/refresh
-          const _sk='pf_survey_'+SURVEY_DATA.pid;
-          const _resps={};
-          QUESTIONS.forEach(q2=>{_resps[q2.id]=person.answers[q2.id].resp||'';});
-          try{sessionStorage.setItem(_sk,JSON.stringify(_resps));}catch(e){}
-          _updateClientProgress(person);
-        });
+    window.selectRating=function(qid,rating){
+      person.answers[qid].resp=rating;
+      [1,2,3,4,5].forEach(n=>{
+        const btn=document.getElementById('rb_'+qid+'_'+n);
+        if(!btn)return;
+        if(n===rating){btn.style.border='2px solid '+RC[n];btn.style.background=RC[n]+'22';btn.style.color=RC[n];}
+        else{btn.style.border='2px solid var(--border-dark)';btn.style.background='transparent';btn.style.color='var(--text-muted)';}
       });
+      const conf=document.getElementById('rconf_'+qid);
+      if(conf){conf.style.color=RC[rating];conf.textContent='Selected: '+rating+' — '+RL[rating];}
+      const _resps={};QUESTIONS.forEach(q2=>{_resps[q2.id]=person.answers[q2.id].resp;});
+      try{sessionStorage.setItem(_sk,JSON.stringify(_resps));}catch(e){}
       _updateClientProgress(person);
-    },50);
+    };
+    _updateClientProgress(person);
   } else {
-    // Already submitted — show the code again
     _showResponseCode(person);
   }
 }
 
 function _updateClientProgress(person){
-  const n=QUESTIONS.filter(q=>(person.answers[q.id]||{}).resp&&person.answers[q.id].resp.trim().length>0).length;
+  const n=QUESTIONS.filter(q=>{const r=(person.answers[q.id]||{}).resp;return r&&r>=1&&r<=5;}).length;
   const pct=Math.round(n/QUESTIONS.length*100);
-  const f=document.getElementById('_cprogfill');const l=document.getElementById('_cprog');const b=document.getElementById('_csubmit');
+  const f=document.getElementById('_cprogfill'),l=document.getElementById('_cprog'),b=document.getElementById('_csubmit');
   if(f)f.style.width=pct+'%';
-  if(l)l.textContent=n+' of '+QUESTIONS.length+' answered';
-  if(b){const ok=n===QUESTIONS.length;b.disabled=!ok;b.style.opacity=ok?'1':'.6';b.textContent=ok?'Submit My Assessment →':'Answer all questions to submit ('+n+'/'+QUESTIONS.length+' done)';}
+  if(l)l.textContent=n+' of '+QUESTIONS.length+' rated';
+  if(b){const ok=n===QUESTIONS.length;b.disabled=!ok;b.style.opacity=ok?'1':'.6';b.textContent=ok?'Submit My Assessment →':'Rate all statements to submit ('+n+'/'+QUESTIONS.length+' done)';}
 }
 
-function submitClientSurvey(cid,pid){
+function submitClientSurvey(){
   if(!SURVEY_DATA)return;
-  // Capture final textarea values into person object
   const responses={};
-  QUESTIONS.forEach(q=>{
-    const ta=document.getElementById('_cr_'+q.id);
-    responses[q.id]=ta?ta.value:'';
-  });
-  // Mark as submitted in sessionStorage
+  QUESTIONS.forEach(q=>{const r=window._surveyPerson&&window._surveyPerson.answers[q.id]&&window._surveyPerson.answers[q.id].resp;responses[q.id]=r||null;});
+  // Also read from sessionStorage as backup
+  try{
+    const _stored=JSON.parse(sessionStorage.getItem('pf_survey_'+SURVEY_DATA.pid)||'{}');
+    QUESTIONS.forEach(q=>{
+      if(!responses[q.id]){
+        const v=_stored[q.id];
+        if(v&&v>=1&&v<=5)responses[q.id]=v;
+      }
+    });
+  }catch(e){}
   const _sk='pf_survey_'+SURVEY_DATA.pid;
   const _toSave=Object.assign({},responses,{_submitted:true});
   try{sessionStorage.setItem(_sk,JSON.stringify(_toSave));}catch(e){}
-  // Build person object for code generation
-  const pr={
-    name:SURVEY_DATA.name,
-    role:SURVEY_DATA.role||'',
-    surveySubmittedAt:new Date().toISOString(),
-    answers:{}
-  };
-  QUESTIONS.forEach(q=>{pr.answers[q.id]={resp:responses[q.id]||'',reactions:{},ds:{},notes:''};});
-  // Replace submit card
+  const pr={name:SURVEY_DATA.name,role:SURVEY_DATA.role||'',surveySubmittedAt:new Date().toISOString(),answers:{}};
+  QUESTIONS.forEach(q=>{pr.answers[q.id]={resp:responses[q.id],reactions:{},ds:{},notes:''};});
   const btn=document.getElementById('_csubmit');
   if(btn&&btn.closest('.card'))btn.closest('.card').remove();
   _showResponseCode(pr);
@@ -1213,18 +1304,15 @@ function submitClientSurvey(cid,pid){
 
 function _showResponseCode(person){
   const mc=document.getElementById('main-content');
-  // Build the response payload — only written responses
   const responses={};
-  QUESTIONS.forEach(q=>{responses[q.id]=(person.answers[q.id]||{}).resp||'';});
-  const payload={pid:SURVEY_DATA&&SURVEY_DATA.pid||SURVEY_PID,cid:SURVEY_DATA&&SURVEY_DATA.cid||SURVEY_CID,name:person.name,responses,submittedAt:person.surveySubmittedAt||new Date().toISOString()};
+  QUESTIONS.forEach(q=>{responses[q.id]=(person.answers[q.id]||{}).resp||null;});
+  const payload={pid:SURVEY_DATA&&SURVEY_DATA.pid||'',cid:SURVEY_DATA&&SURVEY_DATA.cid||'',name:person.name,responses,submittedAt:person.surveySubmittedAt||new Date().toISOString()};
   const code=btoa(JSON.stringify(payload));
-  const rc=document.createElement('div');
-  rc.className='card';
-  rc.style.borderTop='4px solid var(--green)';
+  const rc=document.createElement('div');rc.className='card';rc.style.borderTop='4px solid var(--green)';
   rc.innerHTML=`
     <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--green);margin-bottom:8px;">&#10003; Submitted — one more step</div>
-    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:6px;">Your responses are saved. Please <strong>copy the code below</strong> and email it to Kyle McCalla at <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a> — this is what allows him to load your answers into the assessment tool.</p>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">This code contains only your written responses — nothing else.</p>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:6px;">Your ratings are saved. Please <strong>copy the code below</strong> and email it to Kyle McCalla at <a href="mailto:kyle@people1consulting.com" style="color:var(--navy);">kyle@people1consulting.com</a>.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">This code contains only your ratings — nothing else.</p>
     <div id="_rcode" style="background:var(--cream-dark);border:1px solid var(--border-dark);border-radius:8px;padding:14px;font-family:monospace;font-size:11px;word-break:break-all;line-height:1.6;max-height:130px;overflow-y:auto;margin-bottom:12px;"></div>
     <div style="display:flex;align-items:center;gap:12px;">
       <button id="_rcopy" style="background:var(--gold);color:var(--navy);border:none;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Copy Code</button>
@@ -1235,9 +1323,7 @@ function _showResponseCode(person){
   document.getElementById('_rcode').textContent=code;
   document.getElementById('_rcopy').onclick=function(){
     const fn=()=>{const el=document.getElementById('_rcc');if(el){el.style.opacity=1;setTimeout(()=>el.style.opacity=0,2500);}};
-    navigator.clipboard.writeText(code).then(fn).catch(()=>{
-      const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();
-    });
+    navigator.clipboard.writeText(code).then(fn).catch(()=>{const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();});
   };
 }
 
@@ -1266,12 +1352,14 @@ function seedDemoData(){
         role:'Owner / President',
         overallNotes:'Very self-aware for a business owner. Admitted she avoids conflict which has created blind spots. Receptive throughout, engaged on growth questions. She\'s the key driver — if she\'s in, the org will follow. Coachable. Motivated by legacy.',
         answers:{
-          q1:{resp:'I\'m consistent. I show up every day, first in last out. I hold myself to the same standard I hold my team. I think that sets a tone.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:3},notes:'Answered confidently. Good self-awareness but response was task-focused — didn\'t mention development or coaching.'},
-          q2:{resp:'I built this company from nothing. I understand every single part of it. I know the work, I know the people, I know the customers.',reactions:{receptive:true,engaged:true},ds:{Identity:3,Judgement:3},notes:'Competence-based answer. No mention of leading others, developing talent, or working through people.'},
-          q3:{resp:'Honestly? Not as much as I used to. I read some books. I listen to podcasts on the drive in. I went to a leadership summit two years ago. I want to do more of that.',reactions:{receptive:true},ds:{Growth:3},notes:'Honest answer. Slight defensive tone when admitting she doesn\'t learn as much. Self-aware about the gap.'},
-          q4:{resp:'My job is to make sure everybody else can do their job. Keep the lights on, keep clients happy, keep the team paid.',reactions:{receptive:true,engaged:true},ds:{Systems:3,Judgement:3},notes:'Operational framing. Systems thinker at a basic level. No vision or future-state language.'},
-          q5:{resp:'I\'m good with change as long as I understand why. I\'ve changed a lot over the years. The business looks nothing like it did 10 years ago. But I like to think it through before I move.',reactions:{receptive:true,engaged:true},ds:{Growth:4,Identity:4},notes:'Thoughtful. Deliberate not resistant. Good growth mindset signal.'},
-          q6:{resp:'I do it for my family, obviously. But also — I\'m proud of what we built. I want to prove that you can build a good company and treat people right. Those two things don\'t have to be opposites.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:4},notes:'Strong values alignment with People First philosophy. Emotional and genuine.'}
+          q1:{resp:4,reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:3},notes:'Rated 4. Consistent but task-focused — models showing up, not developing others.'},
+          q2:{resp:3,reactions:{receptive:true,engaged:true},ds:{Judgement:3,Systems:3},notes:'Rated 3. Operational outcome clarity. Limited strategic framing.'},
+          q3:{resp:3,reactions:{receptive:true},ds:{Growth:3},notes:'Rated 3. Self-aware about learning gap. Honest signal.'},
+          q4:{resp:3,reactions:{receptive:true,engaged:true},ds:{Systems:3,Judgement:3},notes:'Rated 3. Operational role framing. No vision or future-state language.'},
+          q5:{resp:4,reactions:{receptive:true,engaged:true},ds:{Growth:4,Identity:4},notes:'Rated 4. Deliberate, not resistant. Good growth mindset.'},
+          q6:{resp:5,reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:4},notes:'Rated 5. Purpose-driven and genuine. Strong values alignment.'},
+          q7:{resp:2,reactions:{receptive:true},ds:{Relationships:2,Judgement:3},notes:'Rated 2. Admitted avoiding conflict. Key developmental gap.'},
+          q8:{resp:4,reactions:{receptive:true,engaged:true},ds:{Judgement:4,Systems:3},notes:'Rated 4. Systems-first thinker. Blames process before people.'}
         }
       },
       {
@@ -1280,12 +1368,14 @@ function seedDemoData(){
         role:'Director of Operations',
         overallNotes:'Troy is sharp and clearly capable but runs on instinct and control. Got slightly defensive on the role description question. Doesn\'t seem to have language around people development yet. Good candidate for Phase 2 focused work. Need to address his tendency to over-function.',
         answers:{
-          q1:{resp:'I\'m really organized. I track everything. My team knows exactly what\'s expected because I tell them clearly. I also don\'t wait for problems — I go find them.',reactions:{receptive:true},ds:{Identity:3,Relationships:2},notes:'Control-oriented. No mention of empowering others or coaching the team.'},
-          q2:{resp:'I get results. My projects come in on time and on budget more than anyone here. I\'ve never missed a deadline. That\'s why I\'m in this seat.',reactions:{receptive:true},ds:{Identity:3,Judgement:3},notes:'Results-only framing. Slightly dismissive of the relational side of leadership.'},
-          q3:{resp:'I read industry stuff — trade publications, PM blogs. I watch how other operations directors in similar companies handle things. I try to steal good ideas.',reactions:{receptive:true},ds:{Growth:3},notes:'Functional learning only. No personal or leadership development mentioned.'},
-          q4:{resp:'My role is to make sure projects get built right, on time and on budget. I\'m the one who holds everybody accountable when things start to slip.',reactions:{annoyed:true},ds:{Systems:2,Judgement:3},notes:'Accountability-heavy framing. No mention of culture, team development, or systems design. Slightly tense when asked to elaborate.'},
-          q5:{resp:'Change is fine when it makes sense. I don\'t like change for change\'s sake. If you can show me it\'s better, I\'ll change. If you can\'t, I\'m going to push back.',reactions:{receptive:true},ds:{Growth:2,Identity:3},notes:'Conditional openness. Sounds reasonable but "push back" language is worth monitoring in coaching context.'},
-          q6:{resp:'Honestly, I like to win. I like to see a project go from dirt to done and know I was the reason it went smoothly. I\'m proud of the work.',reactions:{receptive:true,engaged:true},ds:{Identity:3,Relationships:2},notes:'Competitive and task-driven. No mention of people or team in the "why."'}
+          q1:{resp:4,reactions:{receptive:true},ds:{Identity:3,Relationships:2},notes:'Rated 4 (self). Control-oriented. No development modeling.'},
+          q2:{resp:5,reactions:{receptive:true},ds:{Judgement:3,Systems:2},notes:'Rated 5 (self). Overestimate — results-only, dismisses relational leadership.'},
+          q3:{resp:3,reactions:{receptive:true},ds:{Growth:3},notes:'Rated 3. Functional learning only. No personal development focus.'},
+          q4:{resp:5,reactions:{annoyed:true},ds:{Systems:2,Judgement:3},notes:'Rated 5 (self). Overestimate — accountability-heavy, no culture or systems awareness.'},
+          q5:{resp:3,reactions:{receptive:true},ds:{Growth:2,Identity:3},notes:'Rated 3. Conditional openness. Push-back language to monitor.'},
+          q6:{resp:4,reactions:{receptive:true,engaged:true},ds:{Identity:3,Relationships:2},notes:'Rated 4. Task-driven motivation. No people language in the why.'},
+          q7:{resp:4,reactions:{receptive:true},ds:{Relationships:2,Judgement:3},notes:'Rated 4 (self). Roundtable disagrees — avoids people conflict, escalates to control.'},
+          q8:{resp:3,reactions:{annoyed:true},ds:{Judgement:2,Systems:2},notes:'Rated 3. Blames individuals. Systems thinking underdeveloped.'}
         }
       },
       {
@@ -1294,12 +1384,14 @@ function seedDemoData(){
         role:'HR & People Manager',
         overallNotes:'Maya is the most self-aware person in the building. She sees the culture clearly, named real problems without prompting, and showed genuine curiosity throughout. She\'s been trying to push for development programs and hasn\'t had support. High-potential advocate internally. Will be a key ally.',
         answers:{
-          q1:{resp:'I listen before I act. I try to understand what someone actually needs, not just what they\'re saying. And I take feedback well — I model that because I want my team to see it\'s safe.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:5},notes:'Excellent self-awareness. Growth mindset, relational focus, psychological safety language. This is someone who gets it.'},
-          q2:{resp:'I understand people. I can read a room. I know when someone\'s disengaged before they\'ve said anything. And I care enough to do something about it instead of waiting for it to become a problem.',reactions:{receptive:true,engaged:true},ds:{Identity:4,Judgement:4},notes:'Strong EQ signals. Proactive posture. Concrete and humble.'},
-          q3:{resp:'A lot. I have a book list that never gets shorter. I follow HR thought leaders, I did a SHRM certification on my own time, I listen to management podcasts constantly. I love this stuff.',reactions:{engaged:true},ds:{Growth:5},notes:'Most enthusiastic response of all three interviewees. Intrinsic motivation is high. Knows exactly why she learns.'},
-          q4:{resp:'My role is to create the conditions for people to do their best work. It\'s not about policy or paperwork — that\'s part of it, but it\'s really about building trust and making sure people feel seen.',reactions:{receptive:true,engaged:true},ds:{Systems:4,Judgement:4},notes:'Excellent framing. Systems language, values alignment, and purpose-driven. Best role description of the session.'},
-          q5:{resp:'I love change when it\'s intentional. Change is where growth lives. I get frustrated when change is reactive or when we change things without explaining the why — people shut down. But change itself? I lean in.',reactions:{receptive:true,engaged:true},ds:{Growth:5,Identity:5},notes:'Sophisticated and nuanced. Named a real organizational pain point without prompting. Strong change leadership language.'},
-          q6:{resp:'Because I\'ve been the person who felt invisible at work. And I decided a long time ago that if I ever had any influence over that, I\'d use it. I want people to leave work feeling like they matter.',reactions:{receptive:true,engaged:true},ds:{Identity:5,Relationships:5},notes:'Moving and genuine. Deeply personal and clearly aligned with People First values. This is the kind of leader the OS is built for.'}
+          q1:{resp:5,reactions:{receptive:true,engaged:true},ds:{Identity:4,Relationships:5},notes:'Rated 5. Models psychological safety and listening. Strong alignment.'},
+          q2:{resp:4,reactions:{receptive:true,engaged:true},ds:{Judgement:4,Systems:4},notes:'Rated 4. Humble and accurate. Understands outcomes not just tasks.'},
+          q3:{resp:5,reactions:{engaged:true},ds:{Growth:5},notes:'Rated 5. Intrinsic motivation off the charts. Most growth-oriented.'},
+          q4:{resp:5,reactions:{receptive:true,engaged:true},ds:{Systems:4,Judgement:4},notes:'Rated 5. Purpose-driven, systems-aware framing. Best role description.'},
+          q5:{resp:5,reactions:{receptive:true,engaged:true},ds:{Growth:5,Identity:5},notes:'Rated 5. Nuanced change orientation. Strong growth signal.'},
+          q6:{resp:5,reactions:{receptive:true,engaged:true},ds:{Identity:5,Relationships:5},notes:'Rated 5. Deeply personal. Values alignment is real and lasting.'},
+          q7:{resp:5,reactions:{receptive:true,engaged:true},ds:{Relationships:5,Judgement:4},notes:'Rated 5. Direct conversations are a professional responsibility.'},
+          q8:{resp:5,reactions:{receptive:true,engaged:true},ds:{Judgement:5,Systems:4},notes:'Rated 5. Systems-first under pressure. OS exemplified.'}
         }
       }
     ]
@@ -1315,7 +1407,7 @@ function seedDemoData(){
 ───────────────────────────────────────── */
 loadState();
 seedDemoData();
-if(CLIENT_MODE && SURVEY_CID && SURVEY_PID){
+if(CLIENT_MODE&&SURVEY_DATA&&SURVEY_DATA.name){
   renderClientSurvey();
 } else {
   render();
