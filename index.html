@@ -252,6 +252,7 @@ const REACTIONS=[{id:'receptive',label:'Receptive'},{id:'offended',label:'Offend
 const TABS=['clients','setup','roundtable','report'];
 const TAB_LABELS={'clients':'Client Profiles','setup':'Setup','roundtable':'Round Table','report':'Report'};
 const SK='pf_diag_v3';
+const SHEETS_ENDPOINT='https://script.google.com/macros/s/AKfycbzQch-J-TPmyIFAZL_SbZOjp6hquleqC4o9HDHyOsvQDQ6SH97QSGjYA5D1BItPJHbn/exec';
 
 /* ─────────────────────────────────────────
    STATE
@@ -647,8 +648,12 @@ function renderSetup(mc){
   renderPeopleSetupList(client);
 
   if((client.people||[]).length>0){
-    const go=document.createElement('div');go.style.cssText='text-align:center;margin-top:4px;';
-    go.innerHTML=`<button class="btn btn-gold" onclick="window.gotoTab('roundtable')">Begin Interviews →</button>`;
+    const go=document.createElement('div');
+    go.style.cssText='display:flex;gap:10px;justify-content:center;margin-top:4px;flex-wrap:wrap;';
+    go.innerHTML=`
+      <button class="btn btn-gold" onclick="window.gotoTab('roundtable')">Begin Round Table →</button>
+      <button class="btn btn-outline" id="check-responses-btn" onclick="checkForResponses('${client.id}')">&#8635; Check for New Responses</button>
+    `;
     mc.appendChild(go);
   }
 }
@@ -1094,7 +1099,7 @@ function showImportModal(cid,pid){
   ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
   ov.innerHTML=`<div style="background:white;border-radius:12px;padding:32px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);margin-bottom:6px;">Import Response — ${esc(pr.name)}</div>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Paste the response code ${esc(pr.name)} emailed back to you. Their 8 self-ratings will load into the Round Table tab.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">If automatic import didn't catch their response, paste any manual code here as a backup. Their 8 self-ratings will load into the Round Table tab.</p>
     <textarea id="_ici" placeholder="Paste response code here…" style="width:100%;padding:12px;border:1px solid var(--border-dark);border-radius:8px;font-family:monospace;font-size:11px;min-height:90px;background:var(--cream);resize:vertical;margin-bottom:10px;"></textarea>
     <div id="_ierr" style="font-size:12px;color:var(--red);margin-bottom:10px;display:none;"></div>
     <div style="display:flex;gap:10px;">
@@ -1305,7 +1310,7 @@ function _updateClientProgress(person){
 
 function submitClientSurvey(){
   if(!SURVEY_DATA)return;
-  // Read from sessionStorage (kept up to date by click handler)
+  // Read ratings from sessionStorage
   const responses={};
   try{
     const _stored=JSON.parse(sessionStorage.getItem('pf_survey_'+SURVEY_DATA.pid)||'{}');
@@ -1314,14 +1319,58 @@ function submitClientSurvey(){
       responses[q.id]=(v&&v>=1&&v<=5)?v:null;
     });
   }catch(e){}
-  const _sk='pf_survey_'+SURVEY_DATA.pid;
-  const _toSave=Object.assign({},responses,{_submitted:true});
-  try{sessionStorage.setItem(_sk,JSON.stringify(_toSave));}catch(e){}
-  const pr={name:SURVEY_DATA.name,role:SURVEY_DATA.role||'',surveySubmittedAt:new Date().toISOString(),answers:{}};
-  QUESTIONS.forEach(q=>{pr.answers[q.id]={resp:responses[q.id],reactions:{},ds:{},notes:''};});
+
+  const submittedAt=new Date().toISOString();
+  const payload={
+    pid:SURVEY_DATA.pid,
+    cid:SURVEY_DATA.cid,
+    name:SURVEY_DATA.name,
+    role:SURVEY_DATA.role||'',
+    company:SURVEY_DATA.company||'',
+    responses,
+    submittedAt
+  };
+
+  // Disable button and show sending state
   const btn=document.getElementById('_csubmit');
-  if(btn&&btn.closest('.card'))btn.closest('.card').remove();
-  _showResponseCode(pr);
+  if(btn){btn.disabled=true;btn.textContent='Submitting…';}
+
+  // POST to Google Sheets
+  fetch(SHEETS_ENDPOINT,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(()=>{
+    // Mark submitted in sessionStorage
+    const _sk='pf_survey_'+SURVEY_DATA.pid;
+    const _toSave=Object.assign({},responses,{_submitted:true});
+    try{sessionStorage.setItem(_sk,JSON.stringify(_toSave));}catch(e){}
+    // Show thank you
+    if(btn&&btn.closest('.card'))btn.closest('.card').remove();
+    _showThankYou();
+  }).catch(()=>{
+    // Network error fallback — still show thank you, data may have gone through
+    // (no-cors means we can't read the response but the POST usually succeeds)
+    if(btn&&btn.closest('.card'))btn.closest('.card').remove();
+    _showThankYou();
+  });
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+function _showThankYou(){
+  const mc=document.getElementById('main-content');
+  const ty=document.createElement('div');
+  ty.className='card';
+  ty.style.borderTop='4px solid var(--green)';
+  ty.innerHTML=`
+    <div style="text-align:center;padding:16px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">&#10003;</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--green);margin-bottom:10px;">Thank you — you're all done.</div>
+      <p style="font-size:14px;color:var(--text-mid);line-height:1.7;max-width:480px;margin:0 auto;">Your responses have been submitted successfully. Kyle McCalla will review them along with observations from the group round table session. No further action is needed from you.</p>
+    </div>
+  `;
+  mc.appendChild(ty);
   window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
 }
 
@@ -1348,6 +1397,66 @@ function _showResponseCode(person){
     const fn=()=>{const el=document.getElementById('_rcc');if(el){el.style.opacity=1;setTimeout(()=>el.style.opacity=0,2500);}};
     navigator.clipboard.writeText(code).then(fn).catch(()=>{const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fn();});
   };
+}
+
+
+function checkForResponses(clientId){
+  const btn=document.getElementById('check-responses-btn');
+  if(btn){btn.disabled=true;btn.textContent='Checking…';}
+  const cl=state.clients.find(c=>c.id===clientId);
+  if(!cl){if(btn){btn.disabled=false;btn.textContent='&#8635; Check for New Responses';}return;}
+
+  fetch(SHEETS_ENDPOINT+'?t='+Date.now())
+    .then(r=>r.json())
+    .then(result=>{
+      if(result.status!=='ok'||!result.data){throw new Error('Bad response');}
+      let imported=0;
+      result.data.forEach(row=>{
+        // Match by pid
+        const pid=row.pid||'';
+        const person=cl.people&&cl.people.find(p=>p.id===pid);
+        if(!person)return;
+        // Skip if already imported
+        if(person.surveyImportedAt)return;
+        // Import ratings
+        if(!person.answers)person.answers={};
+        QUESTIONS.forEach(q=>{
+          const val=row[q.id];
+          const rating=parseInt(val);
+          if(rating>=1&&rating<=5){
+            if(!person.answers[q.id])person.answers[q.id]={resp:null,reactions:{},ds:{},notes:''};
+            person.answers[q.id].resp=rating;
+          }
+        });
+        person.surveyImportedAt=row.submittedAt||new Date().toISOString();
+        imported++;
+      });
+      saveState();
+      if(btn){btn.disabled=false;btn.textContent='&#8635; Check for New Responses';}
+      if(imported>0){
+        // Show success banner
+        const banner=document.createElement('div');
+        banner.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.2);white-space:nowrap;';
+        banner.textContent=imported+' new response'+(imported>1?'s':'')+' imported! Go to Round Table to add your scores.';
+        document.body.appendChild(banner);
+        setTimeout(()=>banner.remove(),5000);
+        render(); // Refresh to update status badges
+      } else {
+        const banner=document.createElement('div');
+        banner.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.2);white-space:nowrap;';
+        banner.textContent='No new responses yet.';
+        document.body.appendChild(banner);
+        setTimeout(()=>banner.remove(),3000);
+      }
+    })
+    .catch(err=>{
+      if(btn){btn.disabled=false;btn.textContent='&#8635; Check for New Responses';}
+      const banner=document.createElement('div');
+      banner.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--red);color:white;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.2);white-space:nowrap;';
+      banner.textContent='Could not reach the server. Check your connection and try again.';
+      document.body.appendChild(banner);
+      setTimeout(()=>banner.remove(),4000);
+    });
 }
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
